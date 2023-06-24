@@ -5,15 +5,21 @@ using std::cout;
 using std::endl;
 using std::setw;
 
-void print_result(const state_vector_map &result) {
+inline void print_result(const state_vector_map &result) {
 
     cout.precision(4);
+
     for (auto item : result) {
         cout << setw(11) << item.first << "   ";
     }
     cout << endl;
 
-    for (int i = 0; i < result.at("time").size(); ++i) {
+    // Get an arbitrary column from the result and find its length.
+    auto an_item = result.begin();
+    vector<double> a_column {an_item->second};
+    size_t length {a_column.size()};
+
+    for (size_t i = 0; i < length; ++i) {
         for (auto item : result) {
             cout << setw(11) << item.second[i] << "   ";
         }
