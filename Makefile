@@ -18,6 +18,7 @@ default: 1 2 3 4 5
 3: run_test_harmonic_oscillator
 4: run_segfault_test
 5: run_test_repeat_runs
+6: run_test_module_evaluation
 
 run_test_repeat_runs: test_repeat_runs
 	./test_repeat_runs
@@ -35,7 +36,9 @@ run_test_harmonic_oscillator: test_harmonic_oscillator
 run_segfault_test: segfault_test
 	./segfault_test
 
-test_dynamical_system test_biocro test_harmonic_oscillator segfault_test: $(BIOCRO_LIB)
+run_test_module_evaluation: test_module_evaluation
+	./test_module_evaluation
+test_dynamical_system test_biocro test_harmonic_oscillator segfault_test test_module_evaluation: $(BIOCRO_LIB)
 
 $(BIOCRO_LIB): $(BIOCRO_SOURCE_PATH)/$(BIOCRO_LIB)
 	cp $< $@
@@ -57,3 +60,6 @@ test_harmonic_oscillator: test_harmonic_oscillator.cpp $(BIOCRO_LIB)
 
 segfault_test: segfault_test.cpp
 	clang++ -std=c++14 segfault_test.cpp -o segfault_test -lgtest
+
+test_module_evaluation: test_module_evaluation.cpp $(BIOCRO_LIB)
+	clang++ -std=c++14 $(BIOCRO_INCLUDES) $(BIOCRO_LIB) test_module_evaluation.cpp -o test_module_evaluation -lgtest -lgtest_main
