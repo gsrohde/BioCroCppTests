@@ -68,18 +68,18 @@ const auto shared_ds = std::shared_ptr<dynamical_system>(
 
 // get_ntimes() should return the number of time points of the
 // simulation as determined by the length of the drivers.
-TEST(dynamical_systemTest, get_ntimes) {
+TEST(DynamicalSystemTest, ntimesIsCorrect) {
     EXPECT_EQ(ds.get_ntimes(), drivers[driver_variable_name].size());
 }
 
 // The system we've defined shouldn't require an Euler solver.
-TEST(dynamical_systemTest, requires_euler_ode_solver) {
+TEST(DynamicalSystemTest, EulerSolverNotRequired) {
     EXPECT_EQ(ds.requires_euler_ode_solver(), false);
 }
 
 // To begin with, the values returned by get_differential_quantities
 // should match the values in the initial state.
-TEST(dynamical_systemTest, differential_quantities) {
+TEST(DynamicalSystemTest, GetDifferentialQuantitiesWorks) {
     auto size = initial_state.size();
     auto v = vector<double>(2);
     ds.get_differential_quantities(v);
@@ -92,11 +92,11 @@ TEST(dynamical_systemTest, differential_quantities) {
 using ::testing::HasSubstr;
 using ::testing::Not;
 using ::testing::MatchesRegex;
-TEST(dynamical_systemTest, with_solver) {
+TEST(DynamicalSystemTest, IntegrationReportIsCorrect) {
     EXPECT_EQ(system_solver->generate_integrate_report(), "The ode_solver has not been called yet");
 
     auto result = system_solver->integrate(shared_ds);
-    print_result(result);
+    //print_result(result);
 
     auto integration_report = system_solver->generate_integrate_report();
     EXPECT_THAT(integration_report, Not(HasSubstr("The ode_solver has not been called yet")));
@@ -106,9 +106,4 @@ TEST(dynamical_systemTest, with_solver) {
                              " steps to integrate the system\n.*"));
     // (The boost_euler solver does exactly one step for each time
     // interval, hence number_of_timepoints - 1 total.)
-
-    //shared_ds->reset();
-
-    result = system_solver->integrate(shared_ds);
-    print_result(result);
 }
