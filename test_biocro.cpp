@@ -27,15 +27,15 @@ biocro_simulation get_simulation() {
     };
 }
 
-class biocro_simulationTest : public ::testing::Test {
+class BioCroSimulationTest : public ::testing::Test {
    protected:
-    biocro_simulationTest() :bs{get_simulation()} {
+    BioCroSimulationTest() :bs{get_simulation()} {
     }
     biocro_simulation bs;
 
     void trial_simulation() {
         auto result = bs.run_simulation();
-        print_result(result);
+        //print_result(result);
 
         for (auto i = 0; i < result["time"].size(); ++i) {
             bool eq {result["time"][i] == i};
@@ -45,24 +45,13 @@ class biocro_simulationTest : public ::testing::Test {
             }
         }
 
-        //exit(0);
+        exit(0);
     }
 };
 
-TEST_F(biocro_simulationTest, DISABLED_CorrectSimulation) {
+TEST_F(BioCroSimulationTest, CorrectSimulation) {
 
     ASSERT_EXIT(trial_simulation(),
                 ::testing::ExitedWithCode(0),
                 ".*") << "Either there was a segmentation fault or the time variable values are incorrect in the result.";
-}
-
-TEST_F(biocro_simulationTest, repeat_run) {
-    cout << "RUN 1" << endl;
-    cout << bs.generate_report() << endl;
-    trial_simulation();
-    cout << "RUN 2" << endl;
-    cout << bs.generate_report() << endl;
-    trial_simulation();
-    cout << "DONE" << endl;
-    cout << bs.generate_report() << endl;
 }
