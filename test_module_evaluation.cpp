@@ -1,3 +1,8 @@
+#ifndef VERBOSE
+#define VERBOSE false
+#endif
+
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h> // for matchers
 
@@ -52,11 +57,13 @@ TEST(ModuleEvaluationTest, simple) {
 
     module_ptr->run();
 
-    for (auto item : quantities) {
-        cout << item.first << ": " << item.second << endl;
-    }
-    for (string param : module_outputs) {
-        cout << param << " derivative: " << module_output_map[param] << endl;
+    if (VERBOSE) {
+        for (auto item : quantities) {
+            cout << item.first << ": " << item.second << endl;
+        }
+        for (string param : module_outputs) {
+            cout << param << " derivative: " << module_output_map[param] << endl;
+        }
     }
 
     // dx/dt = v    
