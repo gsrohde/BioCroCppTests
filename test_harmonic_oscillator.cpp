@@ -1,3 +1,7 @@
+#ifndef VERBOSE
+#define VERBOSE false
+#endif
+
 #include <gtest/gtest.h>
 
 #include <cmath>
@@ -6,26 +10,10 @@
 #include <framework/module_factory.h>
 #include <module_library/module_library.h>
 
+#include "print_result.h"
+
 using namespace std;
 using namespace math_constants;
-
-void print_result(const state_vector_map &result) {
-
-    cout.precision(4);
-    for (auto item : result) {
-        cout << setw(11) << item.first << "   ";
-    }
-    cout << endl;
-
-    for (int i = 0; i < result.at("time").size(); ++i) {
-        for (auto item : result) {
-            cout << setw(11) << item.second[i] << "   ";
-        }
-        cout << endl;
-    }
-}
-
-
 
 /*
  * The oscillation should obey the formula
@@ -144,14 +132,14 @@ template <typename T> int sgn(T val) {
 
 TEST_F(HarmonicOscillator_Test, PeriodIsCorrect) {
 
-    cout << "phase: " << phase() << endl;
-    cout << "period: " << period() << endl;
-    cout << "amplitude: " << amplitude() << endl;
+    if (VERBOSE) cout << "phase: " << phase() << endl;
+    if (VERBOSE) cout << "period: " << period() << endl;
+    if (VERBOSE) cout << "amplitude: " << amplitude() << endl;
 
     set_duration(round(period() * 20) + 1);
-    cout << "duration: " << duration() << endl;
+    if (VERBOSE) cout << "duration: " << duration() << endl;
     auto result {get_simulation_result()};
-    print_result(result);
+    if (VERBOSE) print_result(result);
 
     // position should return to zero every half period;
     // and it should change sign as well
@@ -161,8 +149,8 @@ TEST_F(HarmonicOscillator_Test, PeriodIsCorrect) {
         double prior_position {result["position"][floor(t)]};
         double subsequent_position {result["position"][floor(t) + 1]};
         EXPECT_TRUE(sgn(prior_position) != sgn(subsequent_position));
-        cout    << "At t = " << t << ", the position changes from " << prior_position
-                << " to " << subsequent_position << "." << endl;
+        if (VERBOSE) cout    << "At t = " << t << ", the position changes from " << prior_position
+                             << " to " << subsequent_position << "." << endl;
     }
 
     // amplitude should be amplitude()
