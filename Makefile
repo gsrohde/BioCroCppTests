@@ -16,6 +16,8 @@ OBJECTS = $(SOURCES:.cpp=.o)
 EXE = $(OBJECTS:.o=)
 RUN_TARGETS = $(patsubst %,run_%,$(EXE))
 
+.PHONY: clean $(RUN_TARGETS)
+
 run_all_tests: test_all
 	./test_all
 
@@ -45,7 +47,12 @@ test_all : $(OBJECTS)
 $(EXE) : % : %.o
 	clang++ -std=c++14 -o $@ $(BIOCRO_LIB) $< -lgtest_main -lgtest
 
-segfault_test : segfault_test.o
+# header file dependencies
+test_biocro.o test_dynamical_system.o test_harmonic_oscillator.o test_repeat_runs.o: print_result.h
+segfault_test.o test_module_evaluation.o: Random.h
+
+
+segfault_test : segfault_test.o Random.o
 	clang++ -std=c++14 -o $@ $(BIOCRO_LIB) $< -lgtest
 
 
@@ -54,3 +61,7 @@ $(OBJECTS) : %.o : %.cpp
 
 segfault_test.o: segfault_test.cpp
 	clang++ -std=c++14 $< -o $@ -c
+
+
+clean:
+	rm -f $(EXE) $(OBJECTS)
