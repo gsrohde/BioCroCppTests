@@ -1,6 +1,15 @@
-QuickStartGuide-CMake
-googletest_samples
+# copied library file
+BioCro.so
 
-segfault_test
-test_biocro
+# executable Make products
 test_dynamical_system
+test_biocro
+test_harmonic_oscillator
+segfault_test
+test_repeat_runs
+test_module_evaluation
+test_all
+
+# object files
+*.o
+
