@@ -23,14 +23,14 @@ TEST(test_deref_1, will_segfault)
     ASSERT_EXIT((deref(nullptr), exit(0)), ::testing::KilledBySignal(SIGSEGV), ".*");
 }
 
-TEST(test_dref_2, will_not_segfault)
+TEST(test_deref_2, will_not_segfault)
 {
     int i = 42;
     ASSERT_EXIT((deref(&i), exit(0)), ::testing::ExitedWithCode(0), ".*");
 }
 
 // This test will fail but not crash the testing framework.
-TEST(test_dref_2_modified, DISABLED_will_not_segfault)
+TEST(test_deref_2_modified, DISABLED_will_not_segfault)
 {
     // deref(nullptr); <-- This would crash the framework.
     ASSERT_EXIT((deref(nullptr), exit(0)), ::testing::ExitedWithCode(0), ".*");
