@@ -20,6 +20,7 @@ namespace BioCro {
     using Simulation_result = state_vector_map;
     using Module_set = mc_vector;
     using Standard_BioCro_library_module_factory = module_factory<standardBML::module_library>;
+    using Module_creator = module_creator*;
 
     using Simulator = biocro_simulation;
 

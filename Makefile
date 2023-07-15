@@ -29,6 +29,7 @@ run_all_tests: test_all
 5: run_test_repeat_runs
 6: run_test_module_evaluation
 7: run_test_module_factory_functions
+8: run_test_module_creator
 
 $(RUN_TARGETS) : run_% : %
 	./$<
@@ -50,7 +51,7 @@ $(EXE) : % : %.o
 
 # header file dependencies
 test_biocro.o test_dynamical_system.o test_harmonic_oscillator.o test_repeat_runs.o: print_result.h
-test_harmonic_oscillator.o test_module_factory_functions.o: BioCro.h
+test_harmonic_oscillator.o test_module_factory_functions.o test_module_creator.o: BioCro.h
 segfault_test.o test_module_evaluation.o: Random.h
 
 
