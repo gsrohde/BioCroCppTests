@@ -6,14 +6,13 @@
 
 #include <cmath>
 
-#include <framework/biocro_simulation.h>
-#include <framework/module_factory.h>
-#include <module_library/module_library.h>
+#include "BioCro.h"
 
 #include "print_result.h"
 
 using namespace std;
-using namespace math_constants;
+using math_constants::pi;
+using Module_provider = BioCro::Standard_BioCro_library_module_factory;
 
 /*
  * The oscillation should obey the formula
@@ -42,9 +41,9 @@ using namespace math_constants;
 class HarmonicOscillator_Test : public ::testing::Test {
    protected:
     HarmonicOscillator_Test() {
-        double mass = invariant_parameters["mass"];
-        double spring_constant = invariant_parameters["spring_constant"];
-        invariant_parameters["period"] = 2*pi*sqrt(mass/spring_constant);
+        double mass = parameters["mass"];
+        double spring_constant = parameters["spring_constant"];
+        parameters["period"] = 2 * pi * sqrt(mass/spring_constant);
     }
 
     void set_duration(int n) {
@@ -60,8 +59,8 @@ class HarmonicOscillator_Test : public ::testing::Test {
     }
 
     double omega() const {
-        double m = invariant_parameters.at("mass");
-        double k = invariant_parameters.at("spring_constant");
+        double m = parameters.at("mass");
+        double k = parameters.at("spring_constant");
         return sqrt(k/m);
     }
         
@@ -87,22 +86,22 @@ class HarmonicOscillator_Test : public ::testing::Test {
         }
     }
         
-    state_vector_map get_simulation_result() const {
-        return get_simulation().run_simulation();
+    BioCro::Simulation_result get_simulation_result() const {
+        return get_simulator().run_simulation();
     }
     
    private:
 
-    // By making this private, we make sure that recreate the
+    // By making this private, we make sure that we recreate the
     // simulation every time we run it (via get_simulation_result()).
     // This way, the simulation can't get into a bad state (e.g. by
     // resetting the drivers variable via set_duration()) between the
     // time we create it and the time we run it.
     
-    biocro_simulation get_simulation() const {
-        return biocro_simulation {
+    BioCro::Simulator get_simulator() const {
+        return BioCro::Simulator {
             initial_state,
-                invariant_parameters,
+                parameters,
                 drivers,
                 steady_state_modules,
                 derivative_modules,
@@ -119,11 +118,13 @@ class HarmonicOscillator_Test : public ::testing::Test {
                 };
     }
 
-    unordered_map<string, double> initial_state = { {"position", 0}, {"velocity", 1}};
-    unordered_map<string, double> invariant_parameters = { {"mass", 10}, {"spring_constant", 0.1}, {"timestep", 1}};
-    unordered_map<string, vector<double>> drivers = { {"time",  { 0, 1 }} };
-    mc_vector steady_state_modules { module_factory<standardBML::module_library>::retrieve("harmonic_energy") };
-    mc_vector derivative_modules { module_factory<standardBML::module_library>::retrieve("harmonic_oscillator") };
+    BioCro::State initial_state = { {"position", 0}, {"velocity", 1}};
+    BioCro::Parameter_set parameters = { {"mass", 10},
+                                         {"spring_constant", 0.1},
+                                         {"timestep", 1}};
+    BioCro::System_drivers drivers = { {"time",  { 0, 1 }} };
+    BioCro::Module_set steady_state_modules { Module_provider::retrieve("harmonic_energy") };
+    BioCro::Module_set derivative_modules { Module_provider::retrieve("harmonic_oscillator") };
 };
 
 template <typename T> int sgn(T val) {

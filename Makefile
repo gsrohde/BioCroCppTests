@@ -49,6 +49,7 @@ $(EXE) : % : %.o
 
 # header file dependencies
 test_biocro.o test_dynamical_system.o test_harmonic_oscillator.o test_repeat_runs.o: print_result.h
+test_harmonic_oscillator.o: BioCro.h
 segfault_test.o test_module_evaluation.o: Random.h
 
 
