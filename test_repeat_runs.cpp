@@ -3,13 +3,19 @@
 #include "BioCro.h"
 #include "print_result.h"
 
+using module_factory = BioCro::Standard_BioCro_library_module_factory;
+
 class BiocroSimulationTest : public ::testing::Test {
 
     BioCro::State initial_state = { {"TTc", 0} };
-    BioCro::Parameter_set parameters = { {"sowing_time", 0}, {"tbase", 5}, {"temp", 11}, {"timestep", 1} };
+    BioCro::Parameter_set parameters = { {"sowing_time", 0},
+                                         {"tbase", 5},
+                                         {"temp", 11},
+                                         {"timestep", 1} };
     BioCro::System_drivers drivers = { {"time",  { 0, 1, 2, 3, 4, 5 }} };
     BioCro::Module_set steady_state_modules;
-    BioCro::Module_set derivative_modules { BioCro::Standard_BioCro_library_module_factory::retrieve("thermal_time_linear") };
+    BioCro::Module_set derivative_modules
+        { module_factory::retrieve("thermal_time_linear") };
 
    protected:
     BiocroSimulationTest()
@@ -52,7 +58,8 @@ TEST_F(BiocroSimulationTest, DISABLED_runSimulationIsIdempotent) {
         string quantity_name {item.first};
         size_t duration {item.second.size()};
         for (size_t i {0}; i < duration; ++i) {
-            ASSERT_DOUBLE_EQ(first_result.at(quantity_name)[i], second_result.at(quantity_name)[i]);
+            ASSERT_DOUBLE_EQ(first_result.at(quantity_name)[i],
+                             second_result.at(quantity_name)[i]);
         }
     }
 }

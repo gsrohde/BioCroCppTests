@@ -28,10 +28,13 @@ vector<double> sequence(size_t length) {
 }
 
 BioCro::State initial_state = { {"position", 0}, {"velocity", 1} };
-const BioCro::Parameter_set parameters = { {"mass", 10}, {"spring_constant", 0.1}, {"timestep", 1}};
-BioCro::System_drivers drivers = { {driver_variable_name,  sequence(number_of_timepoints)} };
+const BioCro::Parameter_set parameters =
+    { {"mass", 10}, {"spring_constant", 0.1}, {"timestep", 1}};
+BioCro::System_drivers drivers =
+    { {driver_variable_name,  sequence(number_of_timepoints)} };
 const BioCro::Module_set steady_state_modules(0);
-const BioCro::Module_set derivative_modules { Module_factory::retrieve("harmonic_oscillator") };
+const BioCro::Module_set derivative_modules
+    { Module_factory::retrieve("harmonic_oscillator") };
 
 // The solver
 const auto system_solver =
@@ -89,13 +92,15 @@ using ::testing::HasSubstr;
 using ::testing::Not;
 using ::testing::MatchesRegex;
 TEST(DynamicalSystemTest, IntegrationReportIsCorrect) {
-    EXPECT_EQ(system_solver->generate_integrate_report(), "The ode_solver has not been called yet");
+    EXPECT_EQ(system_solver->generate_integrate_report(),
+              "The ode_solver has not been called yet");
 
     auto result = system_solver->integrate(shared_ds);
     //print_result(result);
 
     auto integration_report = system_solver->generate_integrate_report();
-    EXPECT_THAT(integration_report, Not(HasSubstr("The ode_solver has not been called yet")));
+    EXPECT_THAT(integration_report,
+                Not(HasSubstr("The ode_solver has not been called yet")));
     EXPECT_THAT(integration_report,
                 MatchesRegex("boost::numeric::odeint::integrate_const required " +
                              std::to_string(number_of_timepoints - 1) +

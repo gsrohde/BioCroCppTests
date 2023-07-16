@@ -20,7 +20,9 @@ TEST(original_post, will_segfault)
 
 TEST(test_deref_1, will_segfault)
 {
-    ASSERT_EXIT((deref(nullptr), exit(0)), ::testing::KilledBySignal(SIGSEGV), ".*");
+    ASSERT_EXIT((deref(nullptr), exit(0)),
+                ::testing::KilledBySignal(SIGSEGV),
+                ".*");
 }
 
 TEST(test_deref_2, will_not_segfault)

@@ -70,7 +70,8 @@ class HarmonicOscillator_Test : public ::testing::Test {
 
     // φ (phi)
     double phase() const {
-        return atan2(omega() * initial_state.at("position"), initial_state.at("velocity"));
+        return atan2(omega() * initial_state.at("position"),
+                     initial_state.at("velocity"));
     }
 
     // A
@@ -123,8 +124,10 @@ class HarmonicOscillator_Test : public ::testing::Test {
                                          {"spring_constant", 0.1},
                                          {"timestep", 1}};
     BioCro::System_drivers drivers = { {"time",  { 0, 1 }} };
-    BioCro::Module_set steady_state_modules { Module_provider::retrieve("harmonic_energy") };
-    BioCro::Module_set derivative_modules { Module_provider::retrieve("harmonic_oscillator") };
+    BioCro::Module_set steady_state_modules
+        { Module_provider::retrieve("harmonic_energy") };
+    BioCro::Module_set derivative_modules
+        { Module_provider::retrieve("harmonic_oscillator") };
 };
 
 template <typename T> int sgn(T val) {
@@ -146,12 +149,14 @@ TEST_F(HarmonicOscillator_Test, PeriodIsCorrect) {
     // and it should change sign as well
     for (double t = 0; t < duration(); t += period()/2) {
         int i = round(t);
-        EXPECT_NEAR(result["position"][i], 0.0, 1.0) << "At time " << i << " position is " << result["position"][i];
+        EXPECT_NEAR(result["position"][i], 0.0, 1.0)
+            << "At time " << i << " position is " << result["position"][i];
         double prior_position {result["position"][floor(t)]};
         double subsequent_position {result["position"][floor(t) + 1]};
         EXPECT_TRUE(sgn(prior_position) != sgn(subsequent_position));
-        if (VERBOSE) cout    << "At t = " << t << ", the position changes from " << prior_position
-                             << " to " << subsequent_position << "." << endl;
+        if (VERBOSE) cout << "At t = " << t << ", the position changes from "
+                          << prior_position << " to " << subsequent_position
+                          << "." << endl;
     }
 
     // amplitude should be amplitude()

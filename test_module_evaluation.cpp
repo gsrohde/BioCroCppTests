@@ -14,12 +14,14 @@
 
 using namespace std;
 
+using module_factory = BioCro::Standard_BioCro_library_module_factory;
+
 TEST(ModuleEvaluationTest, simple) {
 
     Rand_double double_gen { -100, 100 };
     Rand_double pos_double_gen { 1e-5, 100 };
 
-    BioCro::Module_creator w = BioCro::Standard_BioCro_library_module_factory::retrieve("harmonic_oscillator");
+    BioCro::Module_creator w = module_factory::retrieve("harmonic_oscillator");
 
     double position {double_gen()};
     double velocity {double_gen()};
@@ -57,13 +59,15 @@ TEST(ModuleEvaluationTest, simple) {
             cout << item.first << ": " << item.second << endl;
         }
         for (string param : module_outputs) {
-            cout << param << " derivative: " << module_output_map[param] << endl;
+            cout << param << " derivative: "
+                 << module_output_map[param] << endl;
         }
     }
 
     // dx/dt = v    
     EXPECT_DOUBLE_EQ(module_output_map["position"], velocity);
     // dv/dt = a = -kx/m
-    EXPECT_DOUBLE_EQ(module_output_map["velocity"], -spring_constant * position / mass);
+    EXPECT_DOUBLE_EQ(module_output_map["velocity"],
+                     -spring_constant * position / mass);
 }
 
