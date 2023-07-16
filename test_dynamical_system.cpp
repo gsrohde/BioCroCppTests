@@ -9,6 +9,8 @@
 
 using namespace std;
 
+using Module_factory = BioCro::Standard_BioCro_library_module_factory;
+
 // Solver parameters
 const string ode_solver_name {"boost_euler"};
 constexpr double output_step_size {1};
@@ -29,7 +31,7 @@ BioCro::State initial_state = { {"position", 0}, {"velocity", 1} };
 const BioCro::Parameter_set parameters = { {"mass", 10}, {"spring_constant", 0.1}, {"timestep", 1}};
 BioCro::System_drivers drivers = { {driver_variable_name,  sequence(number_of_timepoints)} };
 const BioCro::Module_set steady_state_modules(0);
-const BioCro::Module_set derivative_modules { module_factory<standardBML::module_library>::retrieve("harmonic_oscillator") };
+const BioCro::Module_set derivative_modules { Module_factory::retrieve("harmonic_oscillator") };
 
 // The solver
 const auto system_solver =
@@ -77,7 +79,7 @@ TEST(DynamicalSystemTest, GetDifferentialQuantitiesWorks) {
     auto size = initial_state.size();
     auto v = vector<double>(2);
     ds.get_differential_quantities(v);
-    string_vector keys{ds.get_differential_quantity_names()};
+    BioCro::Variable_set keys{ds.get_differential_quantity_names()};
     for (auto i = 0; i < keys.size(); ++i) {
         EXPECT_DOUBLE_EQ(v[i], initial_state[keys[i]]);
     }

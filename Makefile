@@ -21,7 +21,7 @@ RUN_TARGETS = $(patsubst %,run_%,$(EXE))
 run_all_tests: test_all
 	./test_all
 
-
+0: run_all_tests
 1: run_test_dynamical_system
 2: run_test_biocro
 3: run_test_harmonic_oscillator
@@ -45,13 +45,18 @@ $(BIOCRO_SOURCE_PATH)/$(BIOCRO_LIB):
 test_all : $(OBJECTS)
 	clang++ -std=c++14 -o $@ $(BIOCRO_LIB) $^ -lgtest_main -lgtest
 
-
 $(EXE) : % : %.o
-	clang++ -std=c++14 -o $@ $(BIOCRO_LIB) $< -lgtest_main -lgtest
+	clang++ -std=c++14 -o $@ $(BIOCRO_LIB) $^ -lgtest_main -lgtest
+
+# extra prerequisite for test_module_evaluation
+test_module_evaluation: Random.o
 
 # header file dependencies
-test_biocro.o test_dynamical_system.o test_harmonic_oscillator.o test_repeat_runs.o: print_result.h
-test_dynamical_system.o test_biocro.o test_harmonic_oscillator.o test_module_factory_functions.o test_module_creator.o: BioCro.h
+test_biocro.o test_dynamical_system.o test_harmonic_oscillator.o \
+    test_repeat_runs.o: print_result.h
+test_dynamical_system.o test_biocro.o test_harmonic_oscillator.o \
+    test_repeat_runs.o test_module_evaluation.o \
+    test_module_factory_functions.o test_module_creator.o: BioCro.h
 segfault_test.o test_module_evaluation.o: Random.h
 
 

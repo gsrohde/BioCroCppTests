@@ -6,14 +6,16 @@
 BioCro::Simulator get_simulation() {
 
     BioCro::State initial_state = { {"position", 0}, {"velocity", 1}};
-    BioCro::Parameter_set invariant_parameters = { {"mass", 10}, {"spring_constant", 0.1}, {"timestep", 1}};
+    BioCro::Parameter_set parameters = { {"mass", 10}, {"spring_constant", 0.1}, {"timestep", 1}};
     BioCro::System_drivers drivers = { {"time",  { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }} };
     BioCro::Module_set steady_state_modules(0);
-    BioCro::Module_set derivative_modules { module_factory<standardBML::module_library>::retrieve("harmonic_oscillator") };
+    BioCro::Module_set derivative_modules {
+        BioCro::Standard_BioCro_library_module_factory::retrieve("harmonic_oscillator")
+    };
 
     return BioCro::Simulator {
         initial_state,
-        invariant_parameters,
+        parameters,
         drivers,
         steady_state_modules,
         derivative_modules,

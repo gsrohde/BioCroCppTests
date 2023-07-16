@@ -17,6 +17,8 @@ namespace BioCro {
 
     using State = state_map;
     using Parameter_set = state_map;
+    using Variable_set = string_vector;
+    using Variable_settings = state_map;
     using System_drivers = state_vector_map;
     using Simulation_result = state_vector_map;
     using Module_set = mc_vector;
@@ -33,12 +35,15 @@ namespace BioCro {
 namespace {
     int state_map;
     int state_vector_map;
+    int string_vector;
     int mc_vector;
-    int module_factory;
     int module_creator;
     int ode_solver_factory;
     int dynamical_system;
     int biocro_simulation;
+
+    template <typename T>
+    class module_factory;
 }
 
 #endif

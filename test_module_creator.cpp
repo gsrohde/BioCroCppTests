@@ -10,10 +10,12 @@ constexpr char bogus_module_name[] {"bogus"};
 
 using testing::MatchesRegex;
 
+using Module_factory = BioCro::Standard_BioCro_library_module_factory;
+
 TEST(ModuleCreatorTest, KnownModule) {
     BioCro::Module_creator creator;
     ASSERT_NO_THROW({
-            creator = BioCro::Standard_BioCro_library_module_factory::retrieve(known_module_name);
+            creator = Module_factory::retrieve(known_module_name);
         });
     ASSERT_EQ(creator->get_name(), known_module_name);
 
@@ -34,6 +36,6 @@ TEST(ModuleCreatorTest, KnownModule) {
 
 TEST(ModuleCreatorTest, BogusModule) {
     ASSERT_THROW({
-            auto creator = BioCro::Standard_BioCro_library_module_factory::retrieve(bogus_module_name);
+            auto creator = Module_factory::retrieve(bogus_module_name);
         }, std::out_of_range);
 }

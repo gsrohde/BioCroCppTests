@@ -8,13 +8,7 @@
 
 #include <iostream>
 
-#include <framework/dynamical_system.h> // for dynamical_system
-// #include <framework/state_map.h> // for state_map, state_vector_map
-#include <framework/module_factory.h> // for module_factory
-// #include <framework/module_creator.h> // for mc_vector
-#include <module_library/module_library.h> // for standardBML::module_library
-#include <framework/ode_solver_library/ode_solver_factory.h> // for ode_solver_factory
-// #include <framework/ode_solver.h> // for ode_solver
+#include "BioCro.h"
 
 #include "Random.h"
 
@@ -25,8 +19,7 @@ TEST(ModuleEvaluationTest, simple) {
     Rand_double double_gen { -100, 100 };
     Rand_double pos_double_gen { 1e-5, 100 };
 
-   
-    module_creator* w = module_factory<standardBML::module_library>::retrieve("harmonic_oscillator");
+    BioCro::Module_creator w = BioCro::Standard_BioCro_library_module_factory::retrieve("harmonic_oscillator");
 
     double position {double_gen()};
     double velocity {double_gen()};
@@ -35,19 +28,21 @@ TEST(ModuleEvaluationTest, simple) {
                             
     // input_quantities should be a state map
     // use it to initialize the quantity list
-    state_map quantities = { {"position", position},
-                             {"velocity", velocity},
-                             {"mass", mass},
-                             {"spring_constant", spring_constant},
-                             {"timestep", 1} };
+    BioCro::Variable_settings quantities = {
+        {"position", position},
+        {"velocity", velocity},
+        {"mass", mass},
+        {"spring_constant", spring_constant},
+        {"timestep", 1}
+    };
 
-    state_map module_output_map;
+    BioCro::Variable_settings module_output_map;
 
     // Get the module's outputs and add them to the output list with default
     // values of 0.0. Since derivative modules add their output values to
     // the values in module_output_map, the result only makes sense if each
     // parameter is initialized to 0.
-    string_vector module_outputs = w->get_outputs();
+    BioCro::Variable_set module_outputs = w->get_outputs();
     for (string param : module_outputs) {
         module_output_map[param] = 0.0;
     }
