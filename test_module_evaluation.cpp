@@ -47,7 +47,7 @@ TEST(ModuleEvaluationTest, simple) {
         module_output_map[param] = 0.0;
     }
 
-    std::unique_ptr<module> module_ptr =
+    auto module_ptr =
         w->create_module(quantities, &module_output_map);
 
     module_ptr->run();

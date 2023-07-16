@@ -41,6 +41,7 @@ namespace {
     int ode_solver_factory;
     int dynamical_system;
     int biocro_simulation;
+    int module;
 
     template <typename T>
     class module_factory;
