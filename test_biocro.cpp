@@ -3,7 +3,7 @@
 #include "BioCro.h"
 #include "print_result.h"
 
-using module_factory = BioCro::Standard_BioCro_library_module_factory;
+using Module_factory = BioCro::Standard_BioCro_library_module_factory;
 
 BioCro::Simulator get_simulation() {
 
@@ -14,7 +14,7 @@ BioCro::Simulator get_simulation() {
         { {"time",  { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }} };
     BioCro::Module_set steady_state_modules(0);
     BioCro::Module_set derivative_modules {
-        module_factory::retrieve("harmonic_oscillator")
+        Module_factory::retrieve("harmonic_oscillator")
     };
 
     return BioCro::Simulator {

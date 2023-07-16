@@ -14,14 +14,14 @@
 
 using namespace std;
 
-using module_factory = BioCro::Standard_BioCro_library_module_factory;
+using Module_factory = BioCro::Standard_BioCro_library_module_factory;
 
 TEST(ModuleEvaluationTest, simple) {
 
     Rand_double double_gen { -100, 100 };
     Rand_double pos_double_gen { 1e-5, 100 };
 
-    BioCro::Module_creator w = module_factory::retrieve("harmonic_oscillator");
+    BioCro::Module_creator w = Module_factory::retrieve("harmonic_oscillator");
 
     double position {double_gen()};
     double velocity {double_gen()};

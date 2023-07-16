@@ -3,7 +3,7 @@
 #include "BioCro.h"
 #include "print_result.h"
 
-using module_factory = BioCro::Standard_BioCro_library_module_factory;
+using Module_factory = BioCro::Standard_BioCro_library_module_factory;
 
 class BiocroSimulationTest : public ::testing::Test {
 
@@ -15,7 +15,7 @@ class BiocroSimulationTest : public ::testing::Test {
     BioCro::System_drivers drivers = { {"time",  { 0, 1, 2, 3, 4, 5 }} };
     BioCro::Module_set steady_state_modules;
     BioCro::Module_set derivative_modules
-        { module_factory::retrieve("thermal_time_linear") };
+        { Module_factory::retrieve("thermal_time_linear") };
 
    protected:
     BiocroSimulationTest()
