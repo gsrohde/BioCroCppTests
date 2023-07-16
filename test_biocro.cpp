@@ -1,19 +1,17 @@
 #include <gtest/gtest.h>
 
-#include <framework/biocro_simulation.h>
-#include <framework/module_factory.h>
-#include <module_library/module_library.h>
+#include "BioCro.h"
 #include "print_result.h"
 
-biocro_simulation get_simulation() {
+BioCro::Simulator get_simulation() {
 
-    state_map initial_state = { {"position", 0}, {"velocity", 1}};
-    state_map invariant_parameters = { {"mass", 10}, {"spring_constant", 0.1}, {"timestep", 1}};
-    state_vector_map drivers = { {"time",  { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }} };
-    mc_vector steady_state_modules(0);
-    mc_vector derivative_modules { module_factory<standardBML::module_library>::retrieve("harmonic_oscillator") };
+    BioCro::State initial_state = { {"position", 0}, {"velocity", 1}};
+    BioCro::Parameter_set invariant_parameters = { {"mass", 10}, {"spring_constant", 0.1}, {"timestep", 1}};
+    BioCro::System_drivers drivers = { {"time",  { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }} };
+    BioCro::Module_set steady_state_modules(0);
+    BioCro::Module_set derivative_modules { module_factory<standardBML::module_library>::retrieve("harmonic_oscillator") };
 
-    return biocro_simulation {
+    return BioCro::Simulator {
         initial_state,
         invariant_parameters,
         drivers,
@@ -31,7 +29,7 @@ class BioCroSimulationTest : public ::testing::Test {
    protected:
     BioCroSimulationTest() :bs{get_simulation()} {
     }
-    biocro_simulation bs;
+    BioCro::Simulator bs;
 
     void trial_simulation() {
         auto result = bs.run_simulation();

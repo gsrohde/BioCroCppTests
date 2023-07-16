@@ -38,6 +38,7 @@ namespace {
     int module_creator;
     int ode_solver_factory;
     int dynamical_system;
+    int biocro_simulation;
 }
 
 #endif
