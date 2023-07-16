@@ -3,13 +3,7 @@
 
 #include <iostream>
 
-#include <framework/dynamical_system.h> // for dynamical_system
-// #include <framework/state_map.h> // for state_map, state_vector_map
-#include <framework/module_factory.h> // for module_factory
-// #include <framework/module_creator.h> // for mc_vector
-#include <module_library/module_library.h> // for standardBML::module_library
-#include <framework/ode_solver_library/ode_solver_factory.h> // for ode_solver_factory
-// #include <framework/ode_solver.h> // for ode_solver
+#include "BioCro.h"
 
 #include "print_result.h"
 
@@ -31,11 +25,11 @@ vector<double> sequence(size_t length) {
     return v;
 }
 
-state_map initial_state = { {"position", 0}, {"velocity", 1} };
-const state_map invariant_parameters = { {"mass", 10}, {"spring_constant", 0.1}, {"timestep", 1}};
-state_vector_map drivers = { {driver_variable_name,  sequence(number_of_timepoints)} };
-const mc_vector steady_state_modules(0);
-const mc_vector derivative_modules { module_factory<standardBML::module_library>::retrieve("harmonic_oscillator") };
+BioCro::State initial_state = { {"position", 0}, {"velocity", 1} };
+const BioCro::Parameter_set parameters = { {"mass", 10}, {"spring_constant", 0.1}, {"timestep", 1}};
+BioCro::System_drivers drivers = { {driver_variable_name,  sequence(number_of_timepoints)} };
+const BioCro::Module_set steady_state_modules(0);
+const BioCro::Module_set derivative_modules { module_factory<standardBML::module_library>::retrieve("harmonic_oscillator") };
 
 // The solver
 const auto system_solver =
@@ -48,17 +42,17 @@ const auto system_solver =
             adaptive_max_steps));
 
 // The system
-const dynamical_system ds(initial_state,
-                          invariant_parameters,
-                          drivers,
-                          steady_state_modules,
-                          derivative_modules);
+const BioCro::Dynamical_system ds(initial_state,
+                                  parameters,
+                                  drivers,
+                                  steady_state_modules,
+                                  derivative_modules);
 
 // Shared pointer to the system
-const auto shared_ds = std::shared_ptr<dynamical_system>(
-                     new dynamical_system(
+const auto shared_ds = std::shared_ptr<BioCro::Dynamical_system>(
+                     new BioCro::Dynamical_system(
                          initial_state,
-                         invariant_parameters,
+                         parameters,
                          drivers,
                          steady_state_modules,
                          derivative_modules));

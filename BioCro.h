@@ -4,6 +4,7 @@
 // Commented-out includes are included, directly or indirectly, in the
 // previous uncommented-out include.
 #include <framework/biocro_simulation.h> // for biocro_simulation
+// #include <framework/dynamical_system.h> // for dynamical_system
 // #include <framework/state_map.h> // for state_map, state_vector_map
 // #include <framework/constants.h> // for math_constants::pi
 #include <framework/module_factory.h> // for module_factory
@@ -23,7 +24,20 @@ namespace BioCro {
     using Module_creator = module_creator*;
 
     using Simulator = biocro_simulation;
+    using Dynamical_system = dynamical_system;
 
+}
+
+// This namespace is simply a kludgy way to prevent the use of global
+// names introduced by the includes above.
+namespace {
+    int state_map;
+    int state_vector_map;
+    int mc_vector;
+    int module_factory;
+    int module_creator;
+    int ode_solver_factory;
+    int dynamical_system;
 }
 
 #endif

@@ -1,11 +1,11 @@
 #include <iostream>
-#include <framework/state_map.h>
+#include "BioCro.h"
 
 using std::cout;
 using std::endl;
 using std::setw;
 
-inline void print_result(const state_vector_map &result) {
+inline void print_result(const BioCro::Simulation_result &result) {
 
     cout.precision(4);
 
