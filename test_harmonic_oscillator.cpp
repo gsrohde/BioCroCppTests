@@ -119,11 +119,11 @@ class HarmonicOscillator_Test : public ::testing::Test {
                 };
     }
 
-    BioCro::State initial_state = { {"position", 0}, {"velocity", 1}};
-    BioCro::Parameter_set parameters = { {"mass", 10},
-                                         {"spring_constant", 0.1},
-                                         {"timestep", 1}};
-    BioCro::System_drivers drivers = { {"time",  { 0, 1 }} };
+    BioCro::State initial_state { {"position", 0}, {"velocity", 1}};
+    BioCro::Parameter_set parameters { {"mass", 10},
+                                       {"spring_constant", 0.1},
+                                       {"timestep", 1}};
+    BioCro::System_drivers drivers { {"time",  { 0, 1 }} };
     BioCro::Module_set steady_state_modules
         { Module_provider::retrieve("harmonic_energy") };
     BioCro::Module_set derivative_modules

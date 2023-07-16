@@ -7,10 +7,10 @@ using Module_factory = BioCro::Standard_BioCro_library_module_factory;
 
 BioCro::Simulator get_simulation() {
 
-    BioCro::State initial_state = { {"position", 0}, {"velocity", 1}};
-    BioCro::Parameter_set parameters =
+    BioCro::State initial_state { {"position", 0}, {"velocity", 1}};
+    BioCro::Parameter_set parameters
         { {"mass", 10}, {"spring_constant", 0.1}, {"timestep", 1}};
-    BioCro::System_drivers drivers =
+    BioCro::System_drivers drivers
         { {"time",  { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }} };
     BioCro::Module_set steady_state_modules(0);
     BioCro::Module_set derivative_modules {

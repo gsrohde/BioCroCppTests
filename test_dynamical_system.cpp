@@ -27,10 +27,10 @@ vector<double> sequence(size_t length) {
     return v;
 }
 
-BioCro::State initial_state = { {"position", 0}, {"velocity", 1} };
-const BioCro::Parameter_set parameters =
+BioCro::State initial_state { {"position", 0}, {"velocity", 1} };
+const BioCro::Parameter_set parameters
     { {"mass", 10}, {"spring_constant", 0.1}, {"timestep", 1}};
-BioCro::System_drivers drivers =
+BioCro::System_drivers drivers
     { {driver_variable_name,  sequence(number_of_timepoints)} };
 const BioCro::Module_set steady_state_modules(0);
 const BioCro::Module_set derivative_modules

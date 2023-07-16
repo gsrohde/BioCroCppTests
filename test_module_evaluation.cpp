@@ -30,7 +30,7 @@ TEST(ModuleEvaluationTest, simple) {
                             
     // input_quantities should be a state map
     // use it to initialize the quantity list
-    BioCro::Variable_settings quantities = {
+    BioCro::Variable_settings quantities {
         {"position", position},
         {"velocity", velocity},
         {"mass", mass},
