@@ -6,7 +6,7 @@ EXTERNAL_BIOCRO_LIB = testBML.$(LIBRARY_FILE_EXTENSION)
 
 # root directory for BioCro header files
 BIOCRO_SOURCE_PATH = ../src
-EXTERNAL_BIOCRO_LIB_SOURCE_PATH = /Users/srohde/Documents/GitHub/gsrohde/private/testBML/src
+EXTERNAL_BIOCRO_LIB_SOURCE_PATH = testBML/src
 
 # Boost files
 BOOST_PATH = ../inc
@@ -48,7 +48,7 @@ $(BIOCRO_SOURCE_PATH)/$(BIOCRO_LIB):
 	echo "Build BioCro before running these tests."
 
 
-test_all : $(OBJECTS)
+test_all : $(OBJECTS) $(EXTERNAL_BIOCRO_LIB)
 	clang++ -std=c++14 -o $@ $(BIOCRO_LIB) $^ -lgtest_main -lgtest
 
 $(EXE) : % : %.o

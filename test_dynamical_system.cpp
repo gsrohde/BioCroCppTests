@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#include "BioCro.h"
+#include "BioCro_Extended.h"
 
 #include "print_result.h"
 
@@ -37,14 +37,13 @@ const BioCro::Module_set derivative_modules
     { Module_factory::retrieve("harmonic_oscillator") };
 
 // The solver
-const auto system_solver =
-    std::unique_ptr<ode_solver>(
-        ode_solver_factory::create(
+BioCro::Solver system_solver =
+    BioCro::make_ode_solver(
             ode_solver_name,
             output_step_size,
             adaptive_rel_error_tol,
             adaptive_abs_error_tol,
-            adaptive_max_steps));
+            adaptive_max_steps);
 
 // The system
 const BioCro::Dynamical_system ds(initial_state,

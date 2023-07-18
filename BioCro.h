@@ -10,8 +10,6 @@
 #include <framework/module_factory.h> // for module_factory
 // #include <framework/module_creator.h> // for mc_vector
 #include <module_library/module_library.h> // for standardBML::module_library
-#include <framework/ode_solver_library/ode_solver_factory.h> // for ode_solver_factory
-// #include <framework/ode_solver.h> // for ode_solver
 
 namespace BioCro {
 
