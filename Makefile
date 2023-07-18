@@ -2,9 +2,11 @@
 LIBRARY_FILE_EXTENSION = so
 
 BIOCRO_LIB = BioCro.$(LIBRARY_FILE_EXTENSION)
+EXTERNAL_BIOCRO_LIB = testBML.$(LIBRARY_FILE_EXTENSION)
 
 # root directory for BioCro header files
 BIOCRO_SOURCE_PATH = ../src
+EXTERNAL_BIOCRO_LIB_SOURCE_PATH = /Users/srohde/Documents/GitHub/gsrohde/private/testBML/src
 
 # Boost files
 BOOST_PATH = ../inc
@@ -30,12 +32,16 @@ run_all_tests: test_all
 6: run_test_module_evaluation
 7: run_test_module_factory_functions
 8: run_test_module_creator
+9: run_test_multiple_module_libraries
 
 $(RUN_TARGETS) : run_% : %
 	./$<
 
 
 $(BIOCRO_LIB): $(BIOCRO_SOURCE_PATH)/$(BIOCRO_LIB)
+	cp $< $@
+
+$(EXTERNAL_BIOCRO_LIB): $(EXTERNAL_BIOCRO_LIB_SOURCE_PATH)/$(EXTERNAL_BIOCRO_LIB)
 	cp $< $@
 
 $(BIOCRO_SOURCE_PATH)/$(BIOCRO_LIB):
@@ -50,6 +56,11 @@ $(EXE) : % : %.o
 
 # extra prerequisite for test_module_evaluation
 test_module_evaluation: Random.o
+
+# special rule for test_multiple_module_libraries
+test_multiple_module_libraries: test_multiple_module_libraries.o $(EXTERNAL_BIOCRO_LIB)
+	clang++ -std=c++14 -o $@ $(BIOCRO_LIB) $(EXTERNAL_BIOCRO_LIB) $^ -lgtest_main -lgtest
+
 
 # header file dependencies
 test_biocro.o test_dynamical_system.o test_harmonic_oscillator.o \
