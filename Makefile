@@ -48,10 +48,10 @@ $(BIOCRO_SOURCE_PATH)/$(BIOCRO_LIB):
 	echo "Build BioCro before running these tests."
 
 
-test_all : $(OBJECTS) $(EXTERNAL_BIOCRO_LIB)
+test_all : $(OBJECTS) $(EXTERNAL_BIOCRO_LIB) $(BIOCRO_LIB)
 	clang++ -std=c++14 -o $@ $(BIOCRO_LIB) $^ -lgtest_main -lgtest
 
-$(EXE) : % : %.o
+$(EXE) : % : %.o $(BIOCRO_LIB)
 	clang++ -std=c++14 -o $@ $(BIOCRO_LIB) $^ -lgtest_main -lgtest
 
 # extra prerequisite for test_module_evaluation
