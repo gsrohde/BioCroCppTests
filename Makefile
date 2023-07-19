@@ -65,9 +65,10 @@ test_multiple_module_libraries: test_multiple_module_libraries.o $(EXTERNAL_BIOC
 # header file dependencies
 test_biocro.o test_dynamical_system.o test_harmonic_oscillator.o \
     test_repeat_runs.o: print_result.h
-test_dynamical_system.o test_biocro.o test_harmonic_oscillator.o \
+test_dynamical_system.o test_harmonic_oscillator.o \
     test_repeat_runs.o test_module_evaluation.o \
     test_module_factory_functions.o test_module_creator.o: BioCro.h
+test_biocro.o test_multiple_module_libraries.o: BioCro_Extended.h
 segfault_test.o test_module_evaluation.o: Random.h
 
 

@@ -6,7 +6,7 @@
 using Module_factory = BioCro::Standard_BioCro_library_module_factory;
 using Module_factory_2 = BioCro::Test_BioCro_library_module_factory;
 
-BioCro::Simulator get_simulation() {
+BioCro::Simulator get_simulation2() {
 
     BioCro::State initial_state { {"position", 0}, {"velocity", 1}, {"elapsed_time", 0}, {"TTc", 0} };
     BioCro::Parameter_set parameters
@@ -41,9 +41,9 @@ BioCro::Simulator get_simulation() {
     };
 }
 
-class BioCroSimulationTest : public ::testing::Test {
+class MultipleModuleLibrariesTest : public ::testing::Test {
    protected:
-    BioCroSimulationTest() :bs{get_simulation()} {
+    MultipleModuleLibrariesTest() :bs{get_simulation2()} {
     }
     BioCro::Simulator bs;
 
@@ -64,7 +64,7 @@ class BioCroSimulationTest : public ::testing::Test {
     }
 };
 
-TEST_F(BioCroSimulationTest, CorrectSimulation) {
+TEST_F(MultipleModuleLibrariesTest, CorrectSimulation) {
 
     ASSERT_EXIT(trial_simulation(),
                 ::testing::ExitedWithCode(0),

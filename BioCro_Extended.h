@@ -14,7 +14,7 @@ namespace BioCro {
 
     using Solver = std::unique_ptr<ode_solver>;
 
-    std::unique_ptr<ode_solver> make_ode_solver
+    inline std::unique_ptr<ode_solver> make_ode_solver
     (
      std::string const& ode_solver_name,
      double step_size,
