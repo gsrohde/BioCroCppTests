@@ -1,0 +1,38 @@
+To use this test suite in a BioCro source tree:
+
+1. Clone this repository as a subdirectory of the root directory of the source tree:
+
+   cd <root of BioCro module source tree>
+   git clone git@github.com:gsrohde/BioCroCppTests.git
+
+2. CD to the repository root and initialize and recursively update its
+   submodule:
+
+   cd BioCroCppTests
+   git submodule update --init --recursive
+
+3. Compile the testBML module library by installing the R pacakge:
+
+   cd testBML
+   R CMD INSTALL .
+
+[To-Do: Add a Make file to the testBML src directory that will make
+testBML.so without installing the corresponding R package.]
+
+4. Make the tests and run them:
+
+   cd ..
+   make
+
+The command *make* will both compile the tests and then run them.
+Once the tests are compiled, you can also run them directly with the
+command
+
+     ./test_all
+
+This allows for the use of various GoogleTest test-running options.
+For example,
+
+     ./test_all --gtest_also_run_disabled_tests
+
+will run the tests that are currently disabled (and that will currently fail).
