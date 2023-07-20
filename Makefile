@@ -57,9 +57,9 @@ $(EXE) : % : %.o $(BIOCRO_LIB)
 # extra prerequisite for test_module_evaluation
 test_module_evaluation: Random.o
 
-# special rule for test_multiple_module_libraries
-test_multiple_module_libraries: test_multiple_module_libraries.o $(EXTERNAL_BIOCRO_LIB)
-	clang++ -std=c++14 -o $@ $(BIOCRO_LIB) $(EXTERNAL_BIOCRO_LIB) $^ -lgtest_main -lgtest
+# extra prerequisite for test_multiple_module_libraries
+test_multiple_module_libraries: $(EXTERNAL_BIOCRO_LIB)
+
 
 
 # header file dependencies
@@ -72,16 +72,11 @@ test_biocro.o test_multiple_module_libraries.o: BioCro_Extended.h
 segfault_test.o test_module_evaluation.o: Random.h
 
 
-segfault_test : segfault_test.o Random.o
-	clang++ -std=c++14 -o $@ $(BIOCRO_LIB) $< -lgtest
+segfault_test : Random.o
 
 
 $(OBJECTS) : %.o : %.cpp
 	clang++ -std=c++14 $(BIOCRO_INCLUDES) $< -o $@ -c
-
-segfault_test.o: segfault_test.cpp
-	clang++ -std=c++14 $< -o $@ -c
-
 
 clean:
 	rm -f $(EXE) $(OBJECTS)
