@@ -4,7 +4,7 @@ LIBRARY_FILE_EXTENSION = so
 BIOCRO_LIB = BioCro.$(LIBRARY_FILE_EXTENSION)
 EXTERNAL_BIOCRO_LIB = testBML.$(LIBRARY_FILE_EXTENSION)
 
-# root directory for BioCro header files
+# root directories for BioCro and testBML header files
 BIOCRO_SOURCE_PATH = ../src
 EXTERNAL_BIOCRO_LIB_SOURCE_PATH = testBML/src
 
@@ -23,6 +23,7 @@ RUN_TARGETS = $(patsubst %,run_%,$(EXE))
 run_all_tests: test_all
 	./test_all
 
+# Convenient target aliases
 0: run_all_tests
 1: run_test_dynamical_system
 2: run_test_biocro
@@ -36,7 +37,6 @@ run_all_tests: test_all
 
 $(RUN_TARGETS) : run_% : %
 	./$<
-
 
 $(BIOCRO_LIB): $(BIOCRO_SOURCE_PATH)/$(BIOCRO_LIB)
 	cp $< $@

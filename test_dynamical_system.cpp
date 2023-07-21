@@ -20,6 +20,7 @@ constexpr int adaptive_max_steps {200};
 
 // Dynamical System parameters
 constexpr size_t number_of_timepoints{100};
+// (We need at least one driver variable, but we don't care what it's called:)
 const string driver_variable_name{"some_driver"};
 vector<double> sequence(size_t length) {
     auto v = vector<double>(length);
@@ -39,40 +40,31 @@ const BioCro::Module_set derivative_modules
 // The solver
 BioCro::Solver system_solver =
     BioCro::make_ode_solver(
-            ode_solver_name,
-            output_step_size,
-            adaptive_rel_error_tol,
-            adaptive_abs_error_tol,
-            adaptive_max_steps);
+        ode_solver_name,
+        output_step_size,
+        adaptive_rel_error_tol,
+        adaptive_abs_error_tol,
+        adaptive_max_steps);
 
 // The system
-const BioCro::Dynamical_system ds(initial_state,
-                                  parameters,
-                                  drivers,
-                                  steady_state_modules,
-                                  derivative_modules);
-
-// Shared pointer to the system
-const auto shared_ds = std::shared_ptr<BioCro::Dynamical_system>(
-                     new BioCro::Dynamical_system(
-                         initial_state,
-                         parameters,
-                         drivers,
-                         steady_state_modules,
-                         derivative_modules));
-
+BioCro::Dynamical_system ds = BioCro::make_dynamical_system(
+    initial_state,
+    parameters,
+    drivers,
+    steady_state_modules,
+    derivative_modules);
 
 // Tests
 
 // get_ntimes() should return the number of time points of the
 // simulation as determined by the length of the drivers.
 TEST(DynamicalSystemTest, ntimesIsCorrect) {
-    EXPECT_EQ(ds.get_ntimes(), drivers[driver_variable_name].size());
+    EXPECT_EQ(ds->get_ntimes(), drivers[driver_variable_name].size());
 }
 
 // The system we've defined shouldn't require an Euler solver.
 TEST(DynamicalSystemTest, EulerSolverNotRequired) {
-    EXPECT_EQ(ds.requires_euler_ode_solver(), false);
+    EXPECT_EQ(ds->requires_euler_ode_solver(), false);
 }
 
 // To begin with, the values returned by get_differential_quantities
@@ -80,8 +72,8 @@ TEST(DynamicalSystemTest, EulerSolverNotRequired) {
 TEST(DynamicalSystemTest, GetDifferentialQuantitiesWorks) {
     auto size = initial_state.size();
     auto v = vector<double>(2);
-    ds.get_differential_quantities(v);
-    BioCro::Variable_set keys{ds.get_differential_quantity_names()};
+    ds->get_differential_quantities(v);
+    BioCro::Variable_set keys{ds->get_differential_quantity_names()};
     for (auto i = 0; i < keys.size(); ++i) {
         EXPECT_DOUBLE_EQ(v[i], initial_state[keys[i]]);
     }
@@ -94,7 +86,7 @@ TEST(DynamicalSystemTest, IntegrationReportIsCorrect) {
     EXPECT_EQ(system_solver->generate_integrate_report(),
               "The ode_solver has not been called yet");
 
-    auto result = system_solver->integrate(shared_ds);
+    auto result = system_solver->integrate(ds);
     //print_result(result);
 
     auto integration_report = system_solver->generate_integrate_report();

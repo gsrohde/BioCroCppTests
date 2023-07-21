@@ -24,8 +24,6 @@ namespace BioCro {
     using Module_creator = module_creator*;
 
     using Simulator = biocro_simulation;
-    using Dynamical_system = dynamical_system;
-
 }
 
 // This namespace is simply a kludgy way to prevent the use of global
