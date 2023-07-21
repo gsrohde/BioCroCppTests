@@ -28,48 +28,53 @@ vector<double> sequence(size_t length) {
     return v;
 }
 
-BioCro::State initial_state { {"position", 0}, {"velocity", 1} };
 const BioCro::Parameter_set parameters
     { {"mass", 10}, {"spring_constant", 0.1}, {"timestep", 1}};
-BioCro::System_drivers drivers
-    { {driver_variable_name,  sequence(number_of_timepoints)} };
 const BioCro::Module_set steady_state_modules(0);
 const BioCro::Module_set derivative_modules
     { Module_factory::retrieve("harmonic_oscillator") };
 
-// The solver
-BioCro::Solver system_solver =
-    BioCro::make_ode_solver(
-        ode_solver_name,
-        output_step_size,
-        adaptive_rel_error_tol,
-        adaptive_abs_error_tol,
-        adaptive_max_steps);
 
-// The system
-BioCro::Dynamical_system ds = BioCro::make_dynamical_system(
-    initial_state,
-    parameters,
-    drivers,
-    steady_state_modules,
-    derivative_modules);
+class DynamicalSystemTest : public ::testing::Test {
+ protected:
+    BioCro::State initial_state { {"position", 0}, {"velocity", 1} };
+    BioCro::System_drivers drivers
+        { {driver_variable_name,  sequence(number_of_timepoints)} };
+
+    // The solver
+    BioCro::Solver system_solver =
+        BioCro::make_ode_solver(
+            ode_solver_name,
+            output_step_size,
+            adaptive_rel_error_tol,
+            adaptive_abs_error_tol,
+            adaptive_max_steps);
+
+    // The system
+    BioCro::Dynamical_system ds = BioCro::make_dynamical_system(
+        initial_state,
+        parameters,
+        drivers,
+        steady_state_modules,
+        derivative_modules);
+};
 
 // Tests
 
 // get_ntimes() should return the number of time points of the
 // simulation as determined by the length of the drivers.
-TEST(DynamicalSystemTest, ntimesIsCorrect) {
+TEST_F(DynamicalSystemTest, ntimesIsCorrect) {
     EXPECT_EQ(ds->get_ntimes(), drivers[driver_variable_name].size());
 }
 
 // The system we've defined shouldn't require an Euler solver.
-TEST(DynamicalSystemTest, EulerSolverNotRequired) {
+TEST_F(DynamicalSystemTest, EulerSolverNotRequired) {
     EXPECT_EQ(ds->requires_euler_ode_solver(), false);
 }
 
 // To begin with, the values returned by get_differential_quantities
 // should match the values in the initial state.
-TEST(DynamicalSystemTest, GetDifferentialQuantitiesWorks) {
+TEST_F(DynamicalSystemTest, GetDifferentialQuantitiesWorks) {
     auto size = initial_state.size();
     auto v = vector<double>(2);
     ds->get_differential_quantities(v);
@@ -82,7 +87,7 @@ TEST(DynamicalSystemTest, GetDifferentialQuantitiesWorks) {
 using ::testing::HasSubstr;
 using ::testing::Not;
 using ::testing::MatchesRegex;
-TEST(DynamicalSystemTest, IntegrationReportIsCorrect) {
+TEST_F(DynamicalSystemTest, IntegrationReportIsCorrect) {
     EXPECT_EQ(system_solver->generate_integrate_report(),
               "The ode_solver has not been called yet");
 
@@ -97,5 +102,11 @@ TEST(DynamicalSystemTest, IntegrationReportIsCorrect) {
                              std::to_string(number_of_timepoints - 1) +
                              " steps to integrate the system\n.*"));
     // (The boost_euler solver does exactly one step for each time
-    // interval, hence number_of_timepoints - 1 total.)
+    // interval, hence number_of_timepoints - 1 is the total number of
+    // steps.)
+}
+
+TEST_F(DynamicalSystemTest, ResettingWorks) {
+    auto result = system_solver->integrate(ds);
+    print_result(result);
 }
