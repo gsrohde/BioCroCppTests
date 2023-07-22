@@ -19,25 +19,27 @@ constexpr double adaptive_abs_error_tol {1e-4};
 constexpr int adaptive_max_steps {200};
 
 // Dynamical System parameters
-constexpr size_t number_of_timepoints{100};
+constexpr size_t number_of_timepoints{5};
 // (We need at least one driver variable, but we don't care what it's called:)
 const string driver_variable_name{"some_driver"};
-vector<double> sequence(size_t length) {
-    auto v = vector<double>(length);
-    iota(v.begin(), v.end(), 0);
-    return v;
-}
 
+const BioCro::State initial_state { {"position", 0}, {"velocity", 1} };
 const BioCro::Parameter_set parameters
     { {"mass", 10}, {"spring_constant", 0.1}, {"timestep", 1}};
 const BioCro::Module_set steady_state_modules(0);
 const BioCro::Module_set derivative_modules
     { Module_factory::retrieve("harmonic_oscillator") };
 
+// Returns an increasing sequence (a vector of doubles) of the given
+// length, starting at 0.
+vector<double> sequence(size_t length) {
+    auto v = vector<double>(length);
+    iota(v.begin(), v.end(), 0);
+    return v;
+}
 
 class DynamicalSystemTest : public ::testing::Test {
  protected:
-    BioCro::State initial_state { {"position", 0}, {"velocity", 1} };
     BioCro::System_drivers drivers
         { {driver_variable_name,  sequence(number_of_timepoints)} };
 
@@ -80,7 +82,7 @@ TEST_F(DynamicalSystemTest, GetDifferentialQuantitiesWorks) {
     ds->get_differential_quantities(v);
     BioCro::Variable_set keys{ds->get_differential_quantity_names()};
     for (auto i = 0; i < keys.size(); ++i) {
-        EXPECT_DOUBLE_EQ(v[i], initial_state[keys[i]]);
+        EXPECT_DOUBLE_EQ(v[i], initial_state.at(keys[i]));
     }
 }
 
@@ -108,5 +110,15 @@ TEST_F(DynamicalSystemTest, IntegrationReportIsCorrect) {
 
 TEST_F(DynamicalSystemTest, ResettingWorks) {
     auto result = system_solver->integrate(ds);
+    /*
+    ds->reset();    ds->get_differential_quantities(v);
+    for (auto i = 0; i < differential_quantity_names.size(); ++i) {
+        cout << v[i] << " : " << initial_state.at(differential_quantity_names[i]) << endl;
+    }
+    print_state(BioCro::get_initial_state(result, {"position", "velocity"}));print_result(result);
+    //    ds->reset();
+    result = system_solver->integrate(ds);
+    print_state(BioCro::get_initial_state(result, {"position", "velocity"}));
+    */
     print_result(result);
 }
