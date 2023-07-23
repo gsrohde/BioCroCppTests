@@ -178,6 +178,6 @@ TEST_F(DynamicalSystemTest, StartWhereWeLeftOff) {
         BioCro::State i_th_row_of_result2 {BioCro::get_state_from_result(result2, i)};
 
         expect_states_to_match(i_th_row_of_result1, i_th_row_of_result2,
-                               ds->get_differential_quantity_names());
+                               ds->get_differential_quantity_names()); // exclude differential quantities
     }
 }
