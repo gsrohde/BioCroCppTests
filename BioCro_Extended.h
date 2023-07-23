@@ -68,7 +68,7 @@ namespace BioCro {
     using Ordered_variable_list = string_vector;
 
     // Gets the current state of the differential variables.
-    State get_current_state(Dynamical_system ds) {
+    inline State get_current_state(Dynamical_system ds) {
         Ordered_variable_list keys{ds->get_differential_quantity_names()};
         auto size = keys.size();
         auto differential_quantities = vector<double>(size);
