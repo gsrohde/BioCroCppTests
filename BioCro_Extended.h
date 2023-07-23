@@ -110,6 +110,19 @@ namespace BioCro {
     inline State get_final_result_state(Simulation_result result) {
         return get_state_from_result(result, get_result_duration(result) - 1);
     }
+
+    using Variable_set = std::set<std::string>;
+
+    // Get the keys of a mapping (e.g., a State or a System_drivers
+    // specification) as a set.
+    template<typename Mapping>
+    inline Variable_set keys(Mapping mapping) {
+        Variable_set keys;
+        std::transform(mapping.begin(), mapping.end(),
+                       std::inserter(keys, keys.end()),
+                       [](auto pair){ return pair.first; });
+        return keys;
+    }
 }
 #include "BioCro.h"
 

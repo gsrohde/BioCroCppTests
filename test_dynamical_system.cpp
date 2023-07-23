@@ -45,8 +45,10 @@ void print_state(BioCro::State state) {
 }
 
 // Test that, for any quantities state1 and state2 have in common,
-// their values match.  If a variable set is given, exclude variables
-// in the set from consideration.
+// their values match.  If a variable set is given, either as a set
+// (BioCro::Variable_set) or an ordered list
+// (BioCro::Ordered_variable_list), exclude variables in the set or
+// list from consideration.
 void expect_states_to_match(BioCro::State state1, BioCro::State state2,
                             BioCro::Variable_set exclude = {}) {
     for (auto item : state1) {
@@ -58,6 +60,12 @@ void expect_states_to_match(BioCro::State state1, BioCro::State state2,
         }
     }
 }
+void expect_states_to_match(BioCro::State state1, BioCro::State state2,
+                            BioCro::Ordered_variable_list exclude) {
+    BioCro::Variable_set exclusion_set(exclude.begin(), exclude.end());
+    expect_states_to_match(state1, state2, exclusion_set);
+}
+
 
 class DynamicalSystemTest : public ::testing::Test {
  protected:
@@ -134,8 +142,10 @@ TEST_F(DynamicalSystemTest, IntegrationReportIsCorrect) {
     // steps.)
 }
 
-TEST_F(DynamicalSystemTest, ResettingWorks2) {
-
+// Test that when we run the system, the current state after we are
+// done matches the last row of the result (for the differential
+// variables).
+TEST_F(DynamicalSystemTest, CurrentStateAfterRunMatchesEndOfResult) {
     auto result = system_solver->integrate(ds);
 
     BioCro::State state = BioCro::get_current_state(ds);
@@ -143,24 +153,31 @@ TEST_F(DynamicalSystemTest, ResettingWorks2) {
     // Test that after running a simulation, the values of the
     // differential quantities match those in the final result state:
     expect_states_to_match(state, BioCro::get_final_result_state(result));
+}
 
-    /*
-    print_result(result);
-    cout << "Initial result state" << endl;
-    print_state(BioCro::get_initial_result_state(result));
-    cout << "Final result state" << endl;
-    print_state(BioCro::get_final_result_state(result));
-    */
+// Test that when the system is run twice in a row without resetting,
+// the last state of the first run result and the first state of the
+// second run result have common values for their differential
+// variables.
+//
+// On the other hand, the drivers present in the two results should be
+// identical.
+TEST_F(DynamicalSystemTest, StartWhereWeLeftOff) {
+    auto result1 = system_solver->integrate(ds);
+    auto result2 = system_solver->integrate(ds);
 
-    result = system_solver->integrate(ds);
-    state = BioCro::get_current_state(ds);
-    //print_state(state);
+    // Exclude the driver variables:
+    BioCro::Variable_set driver_names = BioCro::keys(drivers);
 
-    /*
-    print_result(result);
-    cout << "Initial result state" << endl;
-    print_state(BioCro::get_initial_result_state(result));
-    cout << "Final result state" << endl;
-    print_state(BioCro::get_final_result_state(result));
-    */
+    expect_states_to_match(BioCro::get_final_result_state(result1),
+                           BioCro::get_initial_result_state(result2),
+                           driver_names);
+
+    for (auto i = 0; i < BioCro::get_result_duration(result1); ++i) {
+        BioCro::State i_th_row_of_result1 {BioCro::get_state_from_result(result1, i)};
+        BioCro::State i_th_row_of_result2 {BioCro::get_state_from_result(result2, i)};
+
+        expect_states_to_match(i_th_row_of_result1, i_th_row_of_result2,
+                               ds->get_differential_quantity_names());
+    }
 }
