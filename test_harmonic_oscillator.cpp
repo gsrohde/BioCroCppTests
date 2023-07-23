@@ -1,3 +1,4 @@
+// Compile with the flag -DVERBOSE=true to get verbose output.
 #ifndef VERBOSE
 #define VERBOSE false
 #endif
@@ -15,11 +16,19 @@ using math_constants::pi;
 using Module_provider = BioCro::Standard_BioCro_library_module_factory;
 
 /*
+ * This tests simulation of an undamped harmonic oscillator consisting
+ * of an object with mass m suspended on a spring with spring constant
+ * k.  The position is the vertical displacement from the equilibrium
+ * position of the object so that if the object's position and
+ * velocity are both zero, the object remains at rest.
+ *
  * The oscillation should obey the formula
  *
  *     x(t) = A sin(ωt + φ),
  *
- * where x(t) if the position at time t.  We can use
+ * where x(t) is the position at time t, A is the amplitude of the
+ * oscillation, ω is the oscillation frequency, and φ is the phase.
+ * We can use
  *
  *     x(0) = A sin(φ) = initial_state["position"]
  *
@@ -29,33 +38,33 @@ using Module_provider = BioCro::Standard_BioCro_library_module_factory;
  *
  * together with the force equations
  *
- *     F(t) = m a(t) = m (-ω² x(t))
+ *     F(t) = m a(t) = m (-Aω² sin(ωt + φ)) = m (-ω² x(t))
  *
  * and
  *
  *     F(t) = -k x(t)
  *
- * (where k is the spring constant) to solve for the parameters A,
- * ω, and φ.
+ * to solve for the parameters A, ω, and φ in terms of m, k, and the
+ * initial state (x(0), v(0)).
  */
 class HarmonicOscillator_Test : public ::testing::Test {
    protected:
     HarmonicOscillator_Test() {
         double mass = parameters["mass"];
         double spring_constant = parameters["spring_constant"];
-        parameters["period"] = 2 * pi * sqrt(mass/spring_constant);
     }
 
     void set_duration(int n) {
         vector<double> times;
-        for (auto i = 0; i < n; ++i) {
+        for (auto i = 0; i <= n; ++i) {
             times.push_back(i);
         }
         drivers = { { "time", times } };
     }
 
+    // This is the total number of steps.
     int duration() const {
-        return drivers.at("time").size();
+        return drivers.at("time").size() - 1;
     }
 
     double omega() const {
@@ -106,12 +115,18 @@ class HarmonicOscillator_Test : public ::testing::Test {
                 drivers,
                 steady_state_modules,
                 derivative_modules,
-                //"boost_rosenbrock", // This works poorly if duration() = 2.
-                "boost_rk4",
+                //"boost_rosenbrock", // This gives odd results if
+                                      // duration() = 1, appearing to
+                                      // show no change in state
+                                      // from time 0 to time 1.
+                "boost_rk4",          // This and boost_rkck54 seem to work the best here.
                 //"boost_rkck54",
                 //"auto",             // Chooses Rosenbrock in this case.
-                //"boost_euler",
-                //"homemade_euler",
+
+                //"boost_euler",      // The Euler solvers perform
+                                      // extremely poorly, showing the
+                                      // total energy climbing from 5
+                //"homemade_euler",   // to about 1,352,000.
                 1,
                 0.0001,
                 0.0001,
@@ -131,7 +146,7 @@ class HarmonicOscillator_Test : public ::testing::Test {
 };
 
 template <typename T> int sgn(T val) {
-    return (T(0) < val) - (val < T(0));
+    return (T{0} < val) - (val < T{0});
 }
 
 TEST_F(HarmonicOscillator_Test, PeriodIsCorrect) {
@@ -145,16 +160,16 @@ TEST_F(HarmonicOscillator_Test, PeriodIsCorrect) {
     auto result {get_simulation_result()};
     if (VERBOSE) print_result(result);
 
-    // position should return to zero every half period;
-    // and it should change sign as well
-    for (double t = 0; t < duration(); t += period()/2) {
+    // position should return to zero every half period.
+    // It should change sign as well.
+    for (double t = 0; t <= duration(); t += period()/2) {
         int i = round(t);
         EXPECT_NEAR(result["position"][i], 0.0, 1.0)
             << "At time " << i << " position is " << result["position"][i];
         double prior_position {result["position"][floor(t)]};
         double subsequent_position {result["position"][floor(t) + 1]};
         EXPECT_TRUE(sgn(prior_position) != sgn(subsequent_position));
-        if (VERBOSE) cout << "At t = " << t << ", the position changes from "
+        if (VERBOSE) cout << "Near t = " << t << ", the position changes from "
                           << prior_position << " to " << subsequent_position
                           << "." << endl;
     }
@@ -176,7 +191,7 @@ TEST_F(HarmonicOscillator_Test, PeriodIsCorrect) {
     auto he = result["total_energy"];
     double init_he {he[0]};
     
-    for (int i = 0; i < duration(); ++i) {
+    for (int i = 0; i <= duration(); ++i) {
         EXPECT_NEAR(he[i], init_he, 0.00075);
     }
     
