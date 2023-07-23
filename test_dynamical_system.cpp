@@ -52,13 +52,8 @@ void expect_states_to_match(BioCro::State state1, BioCro::State state2,
     for (auto item : state1) {
         auto key = item.first;
         auto search = state2.find(key);
-        if (!exclude.empty() &&
-            std::find(exclude.begin(),
-                      exclude.end(),
-                      key) != exclude.end()) {
-            continue;
-        }
-        if (search != state2.end()) {
+        auto search2 = exclude.find(key);
+        if (search != state2.end() && search2 == exclude.end()) {
             EXPECT_EQ(state1[key], state2[key]);
         }
     }

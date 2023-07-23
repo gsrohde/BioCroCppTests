@@ -44,7 +44,7 @@ TEST(ModuleEvaluationTest, simple) {
     // values of 0.0. Since derivative modules add their output values to
     // the values in module_output_map, the result only makes sense if each
     // parameter is initialized to 0.
-    BioCro::Variable_set module_outputs = w->get_outputs();
+    auto module_outputs = w->get_outputs();
     for (string param : module_outputs) {
         module_output_map[param] = 0.0;
     }

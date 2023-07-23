@@ -65,16 +65,19 @@ namespace BioCro {
     // Some utility functions useful in testing
     ////////////////////////////////////////////////////////////////////////////
     using State = state_map;
-    using Variable_set = string_vector;
+    using Ordered_variable_list = string_vector;
 
     // Gets the current state of the differential variables.
     State get_current_state(Dynamical_system ds) {
-        Variable_set keys{ds->get_differential_quantity_names()};
+        Ordered_variable_list keys{ds->get_differential_quantity_names()};
         auto size = keys.size();
         auto differential_quantities = vector<double>(size);
         ds->get_differential_quantities(differential_quantities);
         State current_state;
         for (auto i = 0; i < keys.size(); ++i) {
+            // It matters here that the keys (as initialized by
+            // ds->get_differential_quantity_names()) are in the same
+            // order as the corresponding differential_quantities.
             current_state[keys[i]] = differential_quantities[i];
         }
         return current_state;
