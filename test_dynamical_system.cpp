@@ -51,9 +51,9 @@ void expect_states_to_match(BioCro::State state1, BioCro::State state2,
                             BioCro::Variable_set exclude = {}) {
     for (auto item : state1) {
         auto key = item.first;
-        auto search = state2.find(key);
-        auto search2 = exclude.find(key);
-        if (search != state2.end() && search2 == exclude.end()) {
+        auto key_is_in_state2 = (state2.find(key) != state2.end());
+        auto key_is_in_exclusion_list = (exclude.find(key) != exclude.end());
+        if (key_is_in_state2  && !key_is_in_exclusion_list) {
             EXPECT_EQ(state1[key], state2[key]);
         }
     }
