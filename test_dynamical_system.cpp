@@ -38,6 +38,32 @@ vector<double> sequence(size_t length) {
     return v;
 }
 
+void print_state(BioCro::State state) {
+    for (auto item : state) {
+        cout << item.first << ": " << item.second << endl;
+    }
+}
+
+// Test that, for any quantities state1 and state2 have in common,
+// their values match.  If a variable set is given, exclude variables
+// in the set from consideration.
+void expect_states_to_match(BioCro::State state1, BioCro::State state2,
+                            BioCro::Variable_set exclude = {}) {
+    for (auto item : state1) {
+        auto key = item.first;
+        auto search = state2.find(key);
+        if (!exclude.empty() &&
+            std::find(exclude.begin(),
+                      exclude.end(),
+                      key) != exclude.end()) {
+            continue;
+        }
+        if (search != state2.end()) {
+            EXPECT_EQ(state1[key], state2[key]);
+        }
+    }
+}
+
 class DynamicalSystemTest : public ::testing::Test {
  protected:
     BioCro::System_drivers drivers
@@ -74,16 +100,22 @@ TEST_F(DynamicalSystemTest, EulerSolverNotRequired) {
     EXPECT_EQ(ds->requires_euler_ode_solver(), false);
 }
 
-// To begin with, the values returned by get_differential_quantities
-// should match the values in the initial state.
-TEST_F(DynamicalSystemTest, GetDifferentialQuantitiesWorks) {
-    auto size = initial_state.size();
-    auto v = vector<double>(2);
-    ds->get_differential_quantities(v);
-    BioCro::Variable_set keys{ds->get_differential_quantity_names()};
-    for (auto i = 0; i < keys.size(); ++i) {
-        EXPECT_DOUBLE_EQ(v[i], initial_state.at(keys[i]));
-    }
+// Before a simulation is run, the values stored as the state of a
+// dynamical system match the values in the initial state.
+TEST_F(DynamicalSystemTest, SystemStartsInInitialState) {
+    BioCro::State state = BioCro::get_current_state(ds);
+    expect_states_to_match(state, initial_state);
+}
+
+// Even after a simulation is run, if we reset the dynamical syster,
+// the values stored as the state of a dynamical system are restored
+// to those that match the values in the initial state.
+TEST_F(DynamicalSystemTest, ResettingWorks) {
+    system_solver->integrate(ds);
+    ds->reset();
+
+    BioCro::State state = BioCro::get_current_state(ds);
+    expect_states_to_match(state, initial_state);
 }
 
 using ::testing::HasSubstr;
@@ -94,7 +126,6 @@ TEST_F(DynamicalSystemTest, IntegrationReportIsCorrect) {
               "The ode_solver has not been called yet");
 
     auto result = system_solver->integrate(ds);
-    //print_result(result);
 
     auto integration_report = system_solver->generate_integrate_report();
     EXPECT_THAT(integration_report,
@@ -108,17 +139,33 @@ TEST_F(DynamicalSystemTest, IntegrationReportIsCorrect) {
     // steps.)
 }
 
-TEST_F(DynamicalSystemTest, ResettingWorks) {
+TEST_F(DynamicalSystemTest, ResettingWorks2) {
+
     auto result = system_solver->integrate(ds);
+
+    BioCro::State state = BioCro::get_current_state(ds);
+
+    // Test that after running a simulation, the values of the
+    // differential quantities match those in the final result state:
+    expect_states_to_match(state, BioCro::get_final_result_state(result));
+
     /*
-    ds->reset();    ds->get_differential_quantities(v);
-    for (auto i = 0; i < differential_quantity_names.size(); ++i) {
-        cout << v[i] << " : " << initial_state.at(differential_quantity_names[i]) << endl;
-    }
-    print_state(BioCro::get_initial_state(result, {"position", "velocity"}));print_result(result);
-    //    ds->reset();
-    result = system_solver->integrate(ds);
-    print_state(BioCro::get_initial_state(result, {"position", "velocity"}));
-    */
     print_result(result);
+    cout << "Initial result state" << endl;
+    print_state(BioCro::get_initial_result_state(result));
+    cout << "Final result state" << endl;
+    print_state(BioCro::get_final_result_state(result));
+    */
+
+    result = system_solver->integrate(ds);
+    state = BioCro::get_current_state(ds);
+    //print_state(state);
+
+    /*
+    print_result(result);
+    cout << "Initial result state" << endl;
+    print_state(BioCro::get_initial_result_state(result));
+    cout << "Final result state" << endl;
+    print_state(BioCro::get_final_result_state(result));
+    */
 }
