@@ -149,20 +149,34 @@ template <typename T> int sgn(T val) {
     return (T{0} < val) - (val < T{0});
 }
 
+// Check that the object position returns to zero every half period
+// and passes from a positive to a negative value (or vice versa)
+// during the step that crosses the half-period time point.
 TEST_F(HarmonicOscillator_Test, PeriodIsCorrect) {
 
     if (VERBOSE) cout << "phase: " << phase() << endl;
     if (VERBOSE) cout << "period: " << period() << endl;
     if (VERBOSE) cout << "amplitude: " << amplitude() << endl;
 
-    set_duration(round(period() * 20) + 1);
+    set_duration(floor(period() * 40) + 1); // We want to inspect the
+                                            // values both before (or
+                                            // at) and after the time
+                                            // point marking the 40th
+                                            // period.
+    
     if (VERBOSE) cout << "duration: " << duration() << endl;
     auto result {get_simulation_result()};
     if (VERBOSE) print_result(result);
 
     // position should return to zero every half period.
     // It should change sign as well.
-    for (double t = 0; t <= duration(); t += period()/2) {
+    for (double t = 0;
+         t < duration(); // duration() is the maximum allowable index,
+                         // so ensure floor(t) + 1 (used as an index
+                         // below) is less than or equal to
+                         // duration().
+         t += period()/2) {
+        
         int i = round(t);
         EXPECT_NEAR(result["position"][i], 0.0, 1.0)
             << "At time " << i << " position is " << result["position"][i];
