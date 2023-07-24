@@ -54,17 +54,18 @@ class HarmonicOscillator_Test : public ::testing::Test {
         double spring_constant = parameters["spring_constant"];
     }
 
-    void set_duration(int n) {
+    void set_number_of_timesteps(int n) {
         vector<double> times;
-        for (auto i = 0; i <= n; ++i) {
-            times.push_back(i);
+        for (double i{0}; i <= n; ++i) {
+            double time{i * timestep()};
+            times.push_back(time);
         }
-        drivers = { { "time", times } };
+        drivers = { { "elapsed_time", times } };
     }
 
     // This is the total number of steps.
-    int duration() const {
-        return drivers.at("time").size() - 1;
+    int number_of_timesteps() const {
+        return drivers.at("elapsed_time").size() - 1;
     }
 
     double omega() const {
@@ -95,7 +96,15 @@ class HarmonicOscillator_Test : public ::testing::Test {
             return v_0 / (omega() * cos(phase()));
         }
     }
-        
+
+    double timestep() {
+        return parameters["timestep"];
+    }
+
+    double duration() {
+        return number_of_timesteps() * timestep();
+    }
+
     BioCro::Simulation_result get_simulation_result() const {
         return get_simulator().run_simulation();
     }
@@ -105,8 +114,8 @@ class HarmonicOscillator_Test : public ::testing::Test {
     // By making this private, we make sure that we recreate the
     // simulation every time we run it (via get_simulation_result()).
     // This way, the simulation can't get into a bad state (e.g. by
-    // resetting the drivers variable via set_duration()) between the
-    // time we create it and the time we run it.
+    // resetting the drivers variable via set_number_of_timesteps())
+    // between the time we create it and the time we run it.
     
     BioCro::Simulator get_simulator() const {
         return BioCro::Simulator {
@@ -116,9 +125,10 @@ class HarmonicOscillator_Test : public ::testing::Test {
                 steady_state_modules,
                 derivative_modules,
                 //"boost_rosenbrock", // This gives odd results if
-                                      // duration() = 1, appearing to
-                                      // show no change in state
-                                      // from time 0 to time 1.
+                                      // number_of_timesteps() = 1,
+                                      // appearing to show no change
+                                      // in state from time 0 to the
+                                      // subsequent time.
                 "boost_rk4",          // This and boost_rkck54 seem to work the best here.
                 //"boost_rkck54",
                 //"auto",             // Chooses Rosenbrock in this case.
@@ -135,10 +145,10 @@ class HarmonicOscillator_Test : public ::testing::Test {
     }
 
     BioCro::State initial_state { {"position", 0}, {"velocity", 1}};
-    BioCro::Parameter_set parameters { {"mass", 10},
-                                       {"spring_constant", 0.1},
-                                       {"timestep", 1}};
-    BioCro::System_drivers drivers { {"time",  { 0, 1 }} };
+    BioCro::Parameter_set parameters { {"mass", 1},
+                                       {"spring_constant", 1},
+                                       {"timestep", 0.1}};
+    BioCro::System_drivers drivers { {"elapsed_time",  { 0, 1 }} };
     BioCro::Module_set steady_state_modules
         { Module_provider::retrieve("harmonic_energy") };
     BioCro::Module_set derivative_modules
@@ -158,42 +168,52 @@ TEST_F(HarmonicOscillator_Test, PeriodIsCorrect) {
     if (VERBOSE) cout << "period: " << period() << endl;
     if (VERBOSE) cout << "amplitude: " << amplitude() << endl;
 
-    set_duration(floor(period() * 40) + 1); // We want to inspect the
+    set_number_of_timesteps(floor(period()/timestep() * 5) + 1); // We want to inspect the
                                             // values both before (or
                                             // at) and after the time
                                             // point marking the 40th
                                             // period.
     
+    if (VERBOSE) cout << "number of timesteps: " << number_of_timesteps() << endl;
+    if (VERBOSE) cout << "size of timestep: " << timestep() << endl;
     if (VERBOSE) cout << "duration: " << duration() << endl;
+
     auto result {get_simulation_result()};
     if (VERBOSE) print_result(result);
 
     // position should return to zero every half period.
     // It should change sign as well.
-    for (double t = 0;
-         t < duration(); // duration() is the maximum allowable index,
-                         // so ensure floor(t) + 1 (used as an index
-                         // below) is less than or equal to
-                         // duration().
-         t += period()/2) {
+    for (double x = 0;
+         x < number_of_timesteps(); // number_of_timesteps() is the
+                                    // maximum allowable index, so
+                                    // ensure floor(x) + 1 (used as an
+                                    // index below) is less than or
+                                    // equal to number_of_timesteps().
+         x += period()/2/timestep()) {
         
-        int i = round(t);
+        int i = round(x);
         EXPECT_NEAR(result["position"][i], 0.0, 1.0)
             << "At time " << i << " position is " << result["position"][i];
-        double prior_position {result["position"][floor(t)]};
-        double subsequent_position {result["position"][floor(t) + 1]};
+        double prior_position {result["position"][floor(x)]};
+        double subsequent_position {result["position"][floor(x) + 1]};
         EXPECT_TRUE(sgn(prior_position) != sgn(subsequent_position));
-        if (VERBOSE) cout << "Near t = " << t << ", the position changes from "
+        if (VERBOSE) cout << "Near time = " << x * timestep()
+                          << ", the position changes from "
                           << prior_position << " to " << subsequent_position
                           << "." << endl;
     }
 
-    // amplitude should be amplitude()
-    // only test if duration() >= period()
-    if (duration() >= period()) {
+    // The maximum displacement achieved in each direction should equal the amplitude, provided that
+    // duration() >=  3/4 period()
+    if (4 * duration() >= 3 * period()) {
         double maximum {0};
         double minimum {0};
-        for (int i = 0; i < duration(); ++i) {
+        for (int i = 0;
+             i <= number_of_timesteps(); // Again,
+                                         // number_of_timesteps() is
+                                         // the maximum allowable
+                                         // index
+             ++i) {
             maximum = max(maximum, result["position"][i]);
             minimum = min(minimum, result["position"][i]);
         }
