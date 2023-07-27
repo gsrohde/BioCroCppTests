@@ -88,10 +88,6 @@ using Module_provider = BioCro::Standard_BioCro_library_module_factory;
  */
 class HarmonicOscillator_Test : public ::testing::Test {
    protected:
-    HarmonicOscillator_Test() {
-        double mass = parameters["mass"];
-        double spring_constant = parameters["spring_constant"];
-    }
 
     void set_number_of_timesteps(int n) {
         vector<double> times;
@@ -108,8 +104,6 @@ class HarmonicOscillator_Test : public ::testing::Test {
     }
 
     double omega() const {
-        double m = parameters.at("mass");
-        double k = parameters.at("spring_constant");
         return sqrt(k/m);
     }
         
@@ -119,25 +113,20 @@ class HarmonicOscillator_Test : public ::testing::Test {
 
     // φ (phi)
     double phase() const {
-        return atan2(omega() * initial_state.at("position"),
-                     initial_state.at("velocity"));
+        return atan2(omega() * x0, v0);
     }
 
     // A
     double amplitude() const {
-        double x_0 {initial_state.at("position")};
-
-        double v_0 {initial_state.at("velocity")};
-
         if (abs(sin(phase())) > abs(omega() * cos(phase()))) {
-            return x_0 / sin(phase());
+            return x0 / sin(phase());
         } else {
-            return v_0 / (omega() * cos(phase()));
+            return v0 / (omega() * cos(phase()));
         }
     }
 
     double timestep() {
-        return parameters["timestep"];
+        return delta_t;
     }
 
     double duration() {
@@ -158,11 +147,11 @@ class HarmonicOscillator_Test : public ::testing::Test {
     
     BioCro::Simulator get_simulator() const {
         return BioCro::Simulator {
-            initial_state,
-                parameters,
+            {{"position", x0}, {"velocity", v0}},
+                {{"mass", m}, {"spring_constant", k}, {"timestep", delta_t}},
                 drivers,
-                steady_state_modules,
-                derivative_modules,
+                direct_modules,
+                differential_modules,
                 //"boost_rosenbrock", // This gives odd results if
                                       // number_of_timesteps() = 1,
                                       // appearing to show no change
@@ -183,14 +172,17 @@ class HarmonicOscillator_Test : public ::testing::Test {
                 };
     }
 
-    BioCro::State initial_state { {"position", 0}, {"velocity", 1}};
-    BioCro::Parameter_set parameters { {"mass", 1},
-                                       {"spring_constant", 1},
-                                       {"timestep", 0.1}};
+    double x0 {};
+    double v0 {1};
+    double m {1};
+    double k {1};
+    double delta_t {0.1};
+
     BioCro::System_drivers drivers { {"elapsed_time",  { 0, 1 }} };
-    BioCro::Module_set steady_state_modules
+
+    BioCro::Module_set direct_modules
         { Module_provider::retrieve("harmonic_energy") };
-    BioCro::Module_set derivative_modules
+    BioCro::Module_set differential_modules
         { Module_provider::retrieve("harmonic_oscillator") };
 };
 
