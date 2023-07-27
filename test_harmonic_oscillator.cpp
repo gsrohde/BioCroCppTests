@@ -46,6 +46,45 @@ using Module_provider = BioCro::Standard_BioCro_library_module_factory;
  *
  * to solve for the parameters A, ω, and φ in terms of m, k, and the
  * initial state (x(0), v(0)).
+ *
+ * Note that the units for the quantities in these equations are
+ * unspecified but must be consistent with one another.  In the system
+ * we set up below, there are five quantities specified in setting up
+ * the system: a time ("timestep"), a mass ("mass"), a length
+ * ("position"), a velocity ("velocity"), and a force per unit length
+ * ("spring_constant").  An additional quantity, energy, appears in
+ * the output (as "kinetic_energy", "spring_energy", and
+ * "total_energy").  Moreover, acceleration appears as a quantity
+ * behind the scenes when we use the "harmonic_oscillator" module to
+ * compute the change in velocity.
+ *
+ * If we use coherent SI units for all quantities used in setting up
+ * the system--seconds, kilograms, meters, meters per second, and
+ * newtons per meter--then everything works out.  The
+ * harmonic_oscillator computes the change in position (x) and
+ * velocity (v) using the equations
+ *
+ *     Δx/Δt = v
+ *
+ *     Δv/Δt = -k x / m
+ *
+ * So if x is in meters, Δt (timestep) is in seconds, and v is in
+ * meters per second, the units work out in the first equation.  And
+ * if k (the spring constant) has units of kilograms per second
+ * squared, and m (the mass) has units of kilograms, then the units in
+ * the second equation work out as well.  Moreover, using the formulas
+ * in the harmonic_energy module, the energy units will turn out in
+ * kilogram-meters squared per second squared, that is, in joules.
+ *
+ * But suppose we assume the timestep to be in units of hours, an
+ * assumption made in all of the biologically-oriented BioCro modules.
+ * If we keep meters as the unit of length, then we must assume the
+ * velocity v is expressed in meters per hour.  Then if the mass m is
+ * still expressed in kilograms, the spring constant k must be in
+ * units of kilograms per hour squared. Even more awkwardly, the
+ * energy units will be in kilograms-meters squared per hour squared.
+ * Thus, for example, if the total energy turns out to be 1 unit, this
+ * must be interpreted as equivalent to approximately 7.716E-8 joules.
  */
 class HarmonicOscillator_Test : public ::testing::Test {
    protected:
