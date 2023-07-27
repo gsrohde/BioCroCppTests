@@ -199,11 +199,9 @@ TEST_F(HarmonicOscillator_Test, PeriodIsCorrect) {
     if (VERBOSE) cout << "period: " << period() << endl;
     if (VERBOSE) cout << "amplitude: " << amplitude() << endl;
 
-    set_number_of_timesteps(floor(period()/timestep() * 5) + 1); // We want to inspect the
-                                            // values both before (or
-                                            // at) and after the time
-                                            // point marking the 40th
-                                            // period.
+    set_number_of_timesteps(floor(period()/timestep() * 5) + 1);
+    // We want to inspect the values both before (or at) and after the
+    // time point marking the end of the final period, hence the "+ 1".
     
     if (VERBOSE) cout << "number of timesteps: " << number_of_timesteps() << endl;
     if (VERBOSE) cout << "size of timestep: " << timestep() << endl;
