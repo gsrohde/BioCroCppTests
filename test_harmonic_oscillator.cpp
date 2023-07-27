@@ -27,8 +27,8 @@ using Module_provider = BioCro::Standard_BioCro_library_module_factory;
  *     x(t) = A sin(ωt + φ),
  *
  * where x(t) is the position at time t, A is the amplitude of the
- * oscillation, ω is the oscillation frequency, and φ is the phase.
- * We can use
+ * oscillation, ω is proportional to the oscillation frequency f (ω =
+ * 2πf), and φ is the phase.  We can use
  *
  *     x(0) = A sin(φ) = initial_state["position"]
  *
@@ -116,6 +116,13 @@ class HarmonicOscillator_Test : public ::testing::Test {
         return atan2(omega() * x0, v0);
     }
 
+    // The time (0 or later) when the object first reaches position
+    // zero.
+    double first_zero_point() {
+        return (phase() <= 0) ? -phase() / omega()
+                              : (pi - phase()) / omega();
+    }
+
     // A
     double amplitude() const {
         if (abs(sin(phase())) > abs(omega() * cos(phase()))) {
@@ -172,7 +179,7 @@ class HarmonicOscillator_Test : public ::testing::Test {
                 };
     }
 
-    double x0 {};
+    double x0 {1};
     double v0 {1};
     double m {1};
     double k {1};
@@ -212,7 +219,7 @@ TEST_F(HarmonicOscillator_Test, PeriodIsCorrect) {
 
     // position should return to zero every half period.
     // It should change sign as well.
-    for (double x = 0;
+    for (double x = first_zero_point()/timestep();
          x < number_of_timesteps(); // number_of_timesteps() is the
                                     // maximum allowable index, so
                                     // ensure floor(x) + 1 (used as an
