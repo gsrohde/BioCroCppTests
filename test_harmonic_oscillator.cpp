@@ -219,21 +219,24 @@ TEST_F(HarmonicOscillator_Test, PeriodIsCorrect) {
 
     // position should return to zero every half period.
     // It should change sign as well.
-    for (double x = first_zero_point()/timestep();
-         x < number_of_timesteps(); // number_of_timesteps() is the
-                                    // maximum allowable index, so
-                                    // ensure floor(x) + 1 (used as an
-                                    // index below) is less than or
-                                    // equal to number_of_timesteps().
-         x += period()/2/timestep()) {
-        
+    for (double time = first_zero_point();
+
+         time < number_of_timesteps() * timestep();
+         // number_of_timesteps() is the maximum allowable index, so
+         // if x = time/timestep(), ensure floor(x) + 1 (used as an
+         // index below) is less than or equal to
+         // number_of_timesteps().
+
+         time += period()/2) {
+
+        double x = time/timestep();
         int i = round(x);
         EXPECT_NEAR(result["position"][i], 0.0, 1.0)
-            << "At time " << i << " position is " << result["position"][i];
+            << "At index " << i << " position is " << result["position"][i];
         double prior_position {result["position"][floor(x)]};
         double subsequent_position {result["position"][floor(x) + 1]};
         EXPECT_TRUE(sgn(prior_position) != sgn(subsequent_position));
-        if (VERBOSE) cout << "Near time = " << x * timestep()
+        if (VERBOSE) cout << "Near time = " << time
                           << ", the position changes from "
                           << prior_position << " to " << subsequent_position
                           << "." << endl;
