@@ -86,6 +86,9 @@ using Module_provider = BioCro::Standard_BioCro_library_module_factory;
  * energy units will be in kilograms-meters squared per hour squared.
  * Thus, for example, if the total energy turns out to be 1 unit, this
  * must be interpreted as equivalent to approximately 7.716E-8 joules.
+ *
+ * In rare cases, where the period ends up being very short, the tests
+ * may fail.
  */
 class HarmonicOscillator_Test : public ::testing::Test {
    protected:
@@ -186,7 +189,7 @@ class HarmonicOscillator_Test : public ::testing::Test {
                 };
     }
 
-    const double delta_t {0.1};
+    const double delta_t {0.01};
 
     BioCro::System_drivers drivers { {"elapsed_time",  { 0, 1 }} };
 
