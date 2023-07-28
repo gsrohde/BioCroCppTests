@@ -6,9 +6,6 @@ using std::endl;
 using std::setw;
 
 inline void print_result(const BioCro::Simulation_result &result) {
-
-    cout.precision(4);
-
     for (auto item : result) {
         cout << setw(11) << item.first << "   ";
     }
