@@ -186,11 +186,7 @@ class HarmonicOscillator_Test : public ::testing::Test {
                 };
     }
 
-
-    Rand_double double_gen { -10, 10 };
-    Rand_double pos_double_gen { 1e-5, 100 };
-
-    double delta_t {0.1};
+    const double delta_t {0.1};
 
     BioCro::System_drivers drivers { {"elapsed_time",  { 0, 1 }} };
 
@@ -199,18 +195,18 @@ class HarmonicOscillator_Test : public ::testing::Test {
     BioCro::Module_set differential_modules
         { Module_provider::retrieve("harmonic_oscillator") };
 
+    const Rand_double double_gen { -10, 10 };
+    const Rand_double pos_double_gen { 1e-5, 100 };
+
  protected:
-    ///*
+    // We want these accessible to derived classes (vis. the tests
+    // themselves), but they must be declared after double_gen and
+    // pos_double_get because those random number generators must be
+    // initialized first.
     const double x0 {double_gen()};
     const double v0 {double_gen()};
     const double m {pos_double_gen()};
     const double k {pos_double_gen()};
-    /*
-    const double x0 {8.55885};
-    const double v0 {6.79342};
-    const double m {1.29752};
-    const double k {73.1282};
-    */
 };
 
 template <typename T> int sgn(T val) {
