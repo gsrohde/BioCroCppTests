@@ -9,6 +9,7 @@
 
 #include "BioCro.h"
 
+#include "Random.h"
 #include "print_result.h"
 
 using namespace std;
@@ -106,7 +107,7 @@ class HarmonicOscillator_Test : public ::testing::Test {
     double omega() const {
         return sqrt(k/m);
     }
-        
+
     double period() const {
         return 2 * pi / omega();
     }
@@ -132,6 +133,12 @@ class HarmonicOscillator_Test : public ::testing::Test {
         }
     }
 
+    // Used in computing appropriate tolerance value for position near
+    // zero below.
+    double maximum_velocity() {
+        return amplitude() * omega();
+    }
+
     double timestep() {
         return delta_t;
     }
@@ -143,7 +150,7 @@ class HarmonicOscillator_Test : public ::testing::Test {
     BioCro::Simulation_result get_simulation_result() const {
         return get_simulator().run_simulation();
     }
-    
+
    private:
 
     // By making this private, we make sure that we recreate the
@@ -151,7 +158,7 @@ class HarmonicOscillator_Test : public ::testing::Test {
     // This way, the simulation can't get into a bad state (e.g. by
     // resetting the drivers variable via set_number_of_timesteps())
     // between the time we create it and the time we run it.
-    
+
     BioCro::Simulator get_simulator() const {
         return BioCro::Simulator {
             {{"position", x0}, {"velocity", v0}},
@@ -179,10 +186,10 @@ class HarmonicOscillator_Test : public ::testing::Test {
                 };
     }
 
-    double x0 {1};
-    double v0 {1};
-    double m {1};
-    double k {1};
+
+    Rand_double double_gen { -10, 10 };
+    Rand_double pos_double_gen { 1e-5, 100 };
+
     double delta_t {0.1};
 
     BioCro::System_drivers drivers { {"elapsed_time",  { 0, 1 }} };
@@ -191,6 +198,19 @@ class HarmonicOscillator_Test : public ::testing::Test {
         { Module_provider::retrieve("harmonic_energy") };
     BioCro::Module_set differential_modules
         { Module_provider::retrieve("harmonic_oscillator") };
+
+ protected:
+    ///*
+    const double x0 {double_gen()};
+    const double v0 {double_gen()};
+    const double m {pos_double_gen()};
+    const double k {pos_double_gen()};
+    /*
+    const double x0 {8.55885};
+    const double v0 {6.79342};
+    const double m {1.29752};
+    const double k {73.1282};
+    */
 };
 
 template <typename T> int sgn(T val) {
@@ -202,14 +222,18 @@ template <typename T> int sgn(T val) {
 // during the step that crosses the half-period time point.
 TEST_F(HarmonicOscillator_Test, PeriodIsCorrect) {
 
-    if (VERBOSE) cout << "phase: " << phase() << endl;
-    if (VERBOSE) cout << "period: " << period() << endl;
+    if (VERBOSE) cout << "initial position: " << x0 << endl;
+    if (VERBOSE) cout << "initial velocity: " << v0 << endl;
+    if (VERBOSE) cout << "mass: " << m << endl;
+    if (VERBOSE) cout << "spring constant: " << k << endl;
     if (VERBOSE) cout << "amplitude: " << amplitude() << endl;
+    if (VERBOSE) cout << "period: " << period() << endl;
+    if (VERBOSE) cout << "phase: " << phase() << endl;
 
     set_number_of_timesteps(floor(period()/timestep() * 5) + 1);
     // We want to inspect the values both before (or at) and after the
     // time point marking the end of the final period, hence the "+ 1".
-    
+
     if (VERBOSE) cout << "number of timesteps: " << number_of_timesteps() << endl;
     if (VERBOSE) cout << "size of timestep: " << timestep() << endl;
     if (VERBOSE) cout << "duration: " << duration() << endl;
@@ -231,7 +255,7 @@ TEST_F(HarmonicOscillator_Test, PeriodIsCorrect) {
 
         double x = time/timestep();
         int i = round(x);
-        EXPECT_NEAR(result["position"][i], 0.0, 1.0)
+        EXPECT_NEAR(result["position"][i], 0.0, maximum_velocity() * timestep())
             << "At index " << i << " position is " << result["position"][i];
         double prior_position {result["position"][floor(x)]};
         double subsequent_position {result["position"][floor(x) + 1]};
@@ -256,18 +280,16 @@ TEST_F(HarmonicOscillator_Test, PeriodIsCorrect) {
             maximum = max(maximum, result["position"][i]);
             minimum = min(minimum, result["position"][i]);
         }
-        EXPECT_NEAR(maximum, amplitude(), 0.0042);
-        EXPECT_NEAR(minimum, -amplitude(), 0.001);
+        EXPECT_NEAR(maximum, amplitude(), amplitude() * 3e-3);
+        EXPECT_NEAR(minimum, -amplitude(), amplitude() * 3e-3);
     }
 
     // total energy should be constant
-    auto he = result["total_energy"];
-    double init_he {he[0]};
-    
-    for (int i = 0; i <= duration(); ++i) {
-        EXPECT_NEAR(he[i], init_he, 0.00075);
-    }
-    
-}
+    auto E = result["total_energy"];
+    double init_E {E[0]};
 
-    
+    for (int i = 0; i <= duration(); ++i) {
+        EXPECT_NEAR(E[i], init_E, init_E * 9e-4);
+    }
+
+}
