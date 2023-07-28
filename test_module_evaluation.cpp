@@ -4,7 +4,6 @@
 
 
 #include <gtest/gtest.h>
-#include <gmock/gmock.h> // for matchers
 
 #include <iostream>
 
@@ -16,25 +15,21 @@ using namespace std;
 
 using Module_factory = BioCro::Standard_BioCro_library_module_factory;
 
-TEST(ModuleEvaluationTest, simple) {
+TEST(ModuleEvaluationTest, DifferentialModule) {
 
     Rand_double double_gen { -100, 100 };
     Rand_double pos_double_gen { 1e-5, 100 };
 
     BioCro::Module_creator w = Module_factory::retrieve("harmonic_oscillator");
-
-    double position {double_gen()};
-    double velocity {double_gen()};
-    double mass {pos_double_gen()};
-    double spring_constant {pos_double_gen()};
                             
     // input_quantities should be a state map
     // use it to initialize the quantity list
     BioCro::Variable_settings quantities {
-        {"position", position},
-        {"velocity", velocity},
-        {"mass", mass},
-        {"spring_constant", spring_constant}
+        {"position", double_gen()},
+        {"velocity", double_gen()},
+        // The mass and spring constant must be positive:
+        {"mass", pos_double_gen()},
+        {"spring_constant", pos_double_gen()}
     };
 
     BioCro::Variable_settings module_output_map;
@@ -64,9 +59,9 @@ TEST(ModuleEvaluationTest, simple) {
     }
 
     // dx/dt = v    
-    EXPECT_DOUBLE_EQ(module_output_map["position"], velocity);
+    EXPECT_DOUBLE_EQ(module_output_map["position"], quantities["velocity"]);
     // dv/dt = a = -kx/m
     EXPECT_DOUBLE_EQ(module_output_map["velocity"],
-                     -spring_constant * position / mass);
+                     -quantities["spring_constant"] * quantities["position"] / quantities["mass"]);
 }
 
