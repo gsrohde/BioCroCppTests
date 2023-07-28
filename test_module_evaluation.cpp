@@ -34,8 +34,7 @@ TEST(ModuleEvaluationTest, simple) {
         {"position", position},
         {"velocity", velocity},
         {"mass", mass},
-        {"spring_constant", spring_constant},
-        {"timestep", 1}
+        {"spring_constant", spring_constant}
     };
 
     BioCro::Variable_settings module_output_map;
