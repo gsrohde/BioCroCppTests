@@ -1,3 +1,8 @@
+// Compile with the flag -DVERBOSE=true to get verbose output.
+#ifndef VERBOSE
+#define VERBOSE true
+#endif
+
 #include <gtest/gtest.h>
 
 #include "BioCro.h"
@@ -51,8 +56,8 @@ TEST_F(BiocroSimulationTest, DISABLED_runSimulationIsIdempotent) {
     const auto first_result = bs.run_simulation();
     const auto second_result = bs.run_simulation();
 
-    //print_result(first_result);
-    //print_result(second_result);
+    if (VERBOSE) print_result(first_result);
+    if (VERBOSE) print_result(second_result);
 
     for (auto item : first_result) {
         string quantity_name {item.first};
