@@ -1,5 +1,8 @@
 // From https://stackoverflow.com/questions/47583352/how-to-catch-segmentation-fault-with-google-test
-// I've made slight modifications and elaborations.
+//
+// I've made slight modifications and elaborations.  Note these test
+// have nothing per se to do with BioCro.  They are mainly here for
+// reference.
 
 #include <gtest/gtest.h>
 
@@ -43,9 +46,4 @@ TEST(test_deref_2_modified, DISABLED_will_not_segfault)
 TEST(bogus_test, test_framework_has_not_crashed)
 {
     ASSERT_EQ(5, 5);
-}
-
-int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
 }
