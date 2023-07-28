@@ -54,8 +54,8 @@ test_all : $(OBJECTS) $(EXTERNAL_BIOCRO_LIB) $(BIOCRO_LIB)
 $(EXE) : % : %.o $(BIOCRO_LIB)
 	clang++ -std=c++14 -o $@ $(BIOCRO_LIB) $^ -lgtest_main -lgtest
 
-# extra prerequisite for test_module_evaluation
-test_module_evaluation: Random.o
+# extra prerequisite for test_module_evaluation and test_harmonic_oscillator
+test_module_evaluation test_harmonic_oscillator: Random.o
 
 # extra prerequisite for test_multiple_module_libraries
 test_multiple_module_libraries: $(EXTERNAL_BIOCRO_LIB)
@@ -70,7 +70,7 @@ test_harmonic_oscillator.o \
     test_module_factory_functions.o test_module_creator.o: BioCro.h
 test_dynamical_system.o test_biocro.o test_multiple_module_libraries.o: \
     BioCro_Extended.h
-segfault_test.o test_module_evaluation.o: Random.h
+segfault_test.o test_module_evaluation.o test_harmonic_oscillator.o: Random.h
 
 
 segfault_test : Random.o
