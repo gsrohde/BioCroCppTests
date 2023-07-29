@@ -11,7 +11,8 @@
 
 #include "Random.h"
 
-using namespace std;
+using std::cout;
+using std::endl;
 
 using Module_factory = BioCro::Standard_BioCro_library_module_factory;
 
