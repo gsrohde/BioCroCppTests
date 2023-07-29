@@ -14,12 +14,25 @@
 using std::cout;
 using std::endl;
 
+using math_constants::pi;
 using Module_factory = BioCro::Standard_BioCro_library_module_factory;
 
-TEST(ModuleEvaluationTest, DifferentialModule) {
-
+class ModuleEvaluationTest : public ::testing::Test {
+ protected:
     Rand_double double_gen { -100, 100 };
     Rand_double pos_double_gen { 1e-5, 100 };
+
+    BioCro::Variable_settings outputs;
+
+    void print_quantities(BioCro::Variable_settings quantities) {
+        for (auto item : quantities) {
+            cout << item.first << ": " << item.second << endl;
+        }
+    }
+
+};
+
+TEST_F(ModuleEvaluationTest, DifferentialModule) {
 
     BioCro::Module_creator w = Module_factory::retrieve("harmonic_oscillator");
                             
@@ -33,43 +46,31 @@ TEST(ModuleEvaluationTest, DifferentialModule) {
         {"spring_constant", pos_double_gen()}
     };
 
-    BioCro::Variable_settings module_output_map;
-
     // Get the module's outputs and add them to the output list with default
     // values of 0.0. Since derivative modules add their output values to
-    // the values in module_output_map, the result only makes sense if each
+    // the values in outputs, the result only makes sense if each
     // parameter is initialized to 0.
-    auto module_outputs = w->get_outputs();
-    for (string param : module_outputs) {
-        module_output_map[param] = 0.0;
+    for (string param : w->get_outputs()) {
+        outputs[param] = 0.0;
     }
 
-    auto module_ptr =
-        w->create_module(quantities, &module_output_map);
+    auto module = w->create_module(quantities, &outputs);
 
-    module_ptr->run();
+    module->run();
 
     if (VERBOSE) {
-        for (auto item : quantities) {
-            cout << item.first << ": " << item.second << endl;
-        }
-        for (string param : module_outputs) {
-            cout << param << " derivative: "
-                 << module_output_map[param] << endl;
-        }
+        print_quantities(quantities);
+        print_quantities(outputs);
     }
 
     // dx/dt = v    
-    EXPECT_DOUBLE_EQ(module_output_map["position"], quantities["velocity"]);
+    EXPECT_DOUBLE_EQ(outputs["position"], quantities["velocity"]);
     // dv/dt = a = -kx/m
-    EXPECT_DOUBLE_EQ(module_output_map["velocity"],
+    EXPECT_DOUBLE_EQ(outputs["velocity"],
                      -quantities["spring_constant"] * quantities["position"] / quantities["mass"]);
 }
 
-TEST(ModuleEvaluationTest, DirectModule) {
-
-    Rand_double double_gen { -100, 100 };
-    Rand_double pos_double_gen { 1e-5, 100 };
+TEST_F(ModuleEvaluationTest, DirectModule) {
 
     BioCro::Module_creator w = Module_factory::retrieve("solar_position_michalsky");
                             
@@ -78,36 +79,33 @@ TEST(ModuleEvaluationTest, DirectModule) {
     BioCro::Variable_settings quantities {
         {"lat", 40.0932},
         {"longitude", -88.20175},
-        {"time", 200 + 5.0/24 + 48.0/60/24},
+        {"time", 200 + (5.0 + 48.0/60)/24},
         {"time_zone_offset", -5},
         {"year", 2023},
     };
 
-    BioCro::Variable_settings module_output_map;
-
     // Get the module's outputs and add them to the output list with default
-    // values of 0.0. Since derivative modules add their output values to
-    // the values in module_output_map, the result only makes sense if each
-    // parameter is initialized to 0.
-    auto module_outputs = w->get_outputs();
-    for (string param : module_outputs) {
-        module_output_map[param] = 0.0;
+    // values of 0.0.
+    for (string param : w->get_outputs()) {
+        outputs[param] = 0.0;
     }
 
-    auto module_ptr =
-        w->create_module(quantities, &module_output_map);
+    auto module = w->create_module(quantities, &outputs);
 
-    module_ptr->run();
+    module->run();
 
     if (VERBOSE) {
-        for (auto item : quantities) {
-            cout << item.first << ": " << item.second << endl;
-        }
-        for (string param : module_outputs) {
-            cout << param << ": "
-                 << module_output_map[param] << endl;
-        }
+        print_quantities(quantities);
+        print_quantities(outputs);
     }
 
-    EXPECT_NEAR(module_output_map["cosine_zenith_angle"], 0, 1.1e-2);
+    EXPECT_NEAR(outputs["cosine_zenith_angle"], 0, 1.1e-2);
+
+    // For a more meaningful comparison, get the zenith angle itself
+    // and check that it is close to 90 degrees.
+    double zenith_angle_in_degrees{acos(outputs["cosine_zenith_angle"]) * 180/pi};
+
+    // This seems to be a higher tolerance value than we would expect
+    // to have to use.
+    EXPECT_NEAR(zenith_angle_in_degrees, 90, 0.621);
 }
