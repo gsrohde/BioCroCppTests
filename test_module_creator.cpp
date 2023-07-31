@@ -14,9 +14,14 @@ using Module_factory = BioCro::Standard_BioCro_library_module_factory;
 
 TEST(ModuleCreatorTest, KnownModule) {
     BioCro::Module_creator creator;
+
+    // Test that we don't get an exception when we try to a module
+    // known to be part of the Standard BioCro Module Library:
     ASSERT_NO_THROW({
             creator = Module_factory::retrieve(known_module_name);
         });
+    // Ensure name returned by the creator matches the name used in
+    // retrieving it:
     ASSERT_EQ(creator->get_name(), known_module_name);
 
     auto inputs = creator->get_inputs();
