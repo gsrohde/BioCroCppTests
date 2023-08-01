@@ -1,3 +1,6 @@
+// The tests in this file test the retrieval of module creation
+// objects and the behavior of the objects retrieved.
+
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
@@ -15,23 +18,27 @@ using Module_factory = BioCro::Standard_BioCro_library_module_factory;
 TEST(ModuleCreatorTest, KnownModule) {
     BioCro::Module_creator creator;
 
-    // Test that we don't get an exception when we try to a module
-    // known to be part of the Standard BioCro Module Library:
+    // Test that we don't get an exception when we try to retrieve a
+    // module known to be part of the Standard BioCro Module Library:
     ASSERT_NO_THROW({
             creator = Module_factory::retrieve(known_module_name);
         });
-    // Ensure name returned by the creator matches the name used in
-    // retrieving it:
+    // Ensure that the name returned by the creator matches the name
+    // used in retrieving it:
     ASSERT_EQ(creator->get_name(), known_module_name);
 
     auto inputs = creator->get_inputs();
     auto outputs = creator->get_outputs();
 
+    // Check that there are 4 inputs and that they have the expected
+    // names.
     EXPECT_EQ(inputs.size(), 4);
     for (auto& item : inputs) {
         EXPECT_THAT(item, MatchesRegex(known_module_inputs));
     }
 
+    // Check that there are 2 outputs and that they have the the
+    // expected names.
     EXPECT_EQ(outputs.size(), 2);
     for (auto& item : outputs) {
         EXPECT_THAT(item, MatchesRegex(known_module_outputs));
@@ -40,6 +47,8 @@ TEST(ModuleCreatorTest, KnownModule) {
 
 
 TEST(ModuleCreatorTest, BogusModule) {
+    // Test that we get an exception when we try to retrieve a module
+    // that doesn't exist.
     ASSERT_THROW({
             auto creator = Module_factory::retrieve(bogus_module_name);
         }, std::out_of_range);
