@@ -26,8 +26,9 @@ namespace BioCro {
     using Simulator = biocro_simulation;
 }
 
-// This namespace is simply a kludgy way to prevent the use of global
-// names introduced by the includes above.
+// This namespace is simply a kludgy way to prevent direct use of
+// global names introduced by the includes above.  (This isn't an
+// exhaustive list of introduced names.)
 namespace {
     int state_map;
     int state_vector_map;

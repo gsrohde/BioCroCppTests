@@ -6,7 +6,7 @@
 
 #include <random>
 
-using namespace std;
+using std::function;
 
 class Rand_int {
 public:
