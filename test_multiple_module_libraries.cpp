@@ -1,3 +1,8 @@
+// Compile with the flag -DVERBOSE=true to get verbose output.
+#ifndef VERBOSE
+#define VERBOSE false
+#endif
+
 #include <gtest/gtest.h>
 
 #include "BioCro_Extended.h"
@@ -6,7 +11,33 @@
 using Module_factory = BioCro::Standard_BioCro_library_module_factory;
 using Module_factory_2 = BioCro::Test_BioCro_library_module_factory;
 
-BioCro::Simulator get_simulation2() {
+class MultipleModuleLibrariesTest : public ::testing::Test {
+   protected:
+    MultipleModuleLibrariesTest() :bs{get_simulation()} {
+    }
+    BioCro::Simulator bs;
+
+    void trial_simulation() {
+        auto result = bs.run_simulation();
+        if (VERBOSE) print_result(result);
+
+        for (auto i = 0; i < result["time"].size(); ++i) {
+            bool eq {result["time"][i] == i};
+            if (!eq) {
+                cout << "result[\"time\"][" << i << "] (" << result["time"][i]
+                     << ") != i (" << i << ")." << endl;
+                exit(1);
+            }
+        }
+
+        exit(0);
+    }
+
+ private:
+    BioCro::Simulator get_simulation();
+};
+
+BioCro::Simulator MultipleModuleLibrariesTest::get_simulation() {
 
     BioCro::State initial_state { {"position", 0}, {"velocity", 1}, {"elapsed_time", 0}, {"TTc", 0} };
     BioCro::Parameter_set parameters
@@ -40,29 +71,6 @@ BioCro::Simulator get_simulation2() {
         200
     };
 }
-
-class MultipleModuleLibrariesTest : public ::testing::Test {
-   protected:
-    MultipleModuleLibrariesTest() :bs{get_simulation2()} {
-    }
-    BioCro::Simulator bs;
-
-    void trial_simulation() {
-        auto result = bs.run_simulation();
-        print_result(result);
-
-        for (auto i = 0; i < result["time"].size(); ++i) {
-            bool eq {result["time"][i] == i};
-            if (!eq) {
-                cout << "result[\"time\"][" << i << "] (" << result["time"][i]
-                     << ") != i (" << i << ")." << endl;
-                exit(1);
-            }
-        }
-
-        exit(0);
-    }
-};
 
 TEST_F(MultipleModuleLibrariesTest, CorrectSimulation) {
 
