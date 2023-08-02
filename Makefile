@@ -18,6 +18,9 @@ OBJECTS = $(SOURCES:.cpp=.o)
 EXE = $(OBJECTS:.o=)
 RUN_TARGETS = $(patsubst %,run_%,$(EXE))
 
+# Override with "make <target> VERBOSE=true"
+VERBOSE = false
+
 .PHONY: clean $(RUN_TARGETS)
 
 run_all_tests: test_all
@@ -77,7 +80,7 @@ segfault_test : Random.o
 
 
 $(OBJECTS) : %.o : %.cpp
-	clang++ -std=c++14 $(BIOCRO_INCLUDES) $< -o $@ -c
+	clang++ -std=c++14 $(BIOCRO_INCLUDES) $< -o $@ -c -DVERBOSE=$(VERBOSE)
 
 clean:
 	rm -f $(EXE) $(OBJECTS)
