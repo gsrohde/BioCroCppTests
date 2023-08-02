@@ -37,6 +37,7 @@ run_all_tests: test_all
 7: run_test_module_factory_functions
 8: run_test_module_creator
 9: run_test_multiple_module_libraries
+10: run_test_module_object
 
 $(RUN_TARGETS) : run_% : %
 	./$<
@@ -55,7 +56,7 @@ test_all : $(OBJECTS) $(EXTERNAL_BIOCRO_LIB) $(BIOCRO_LIB)
 	clang++ -std=c++14 -o $@ $(BIOCRO_LIB) $^ -lgtest_main -lgtest
 
 $(EXE) : % : %.o $(BIOCRO_LIB)
-	clang++ -std=c++14 -o $@ $(BIOCRO_LIB) $^ -lgtest_main -lgtest
+	clang++ -std=c++14 -o $@ $^ -lgtest_main -lgtest
 
 # extra prerequisite for test_module_evaluation and test_harmonic_oscillator
 test_module_evaluation test_harmonic_oscillator: Random.o
