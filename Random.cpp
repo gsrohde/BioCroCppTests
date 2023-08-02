@@ -3,6 +3,8 @@
 
 #include "Random.h"
 
+using namespace std;
+
 int Rand_int::seed_offset = 0;
 
 Rand_int::Rand_int(int lo, int hi)
