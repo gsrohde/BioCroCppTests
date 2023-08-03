@@ -1,3 +1,10 @@
+// Here we test the use of multiple module libraries at once.
+//
+// We show that we can use two modules from different module libraries
+// that have the same name as long as they are otherwise compatible.
+// On the other hand, identical direct modules from different
+// libraries will conflict since their outputs overlap.
+
 // Compile with the flag -DVERBOSE=true to get verbose output.
 #ifndef VERBOSE
 #define VERBOSE false
@@ -13,9 +20,8 @@ using Module_factory_2 = BioCro::Test_BioCro_library_module_factory;
 
 class MultipleModuleLibrariesTest : public ::testing::Test {
    protected:
-    MultipleModuleLibrariesTest() :bs{get_simulation()} {
+    MultipleModuleLibrariesTest() :bs{get_simulator()} {
     }
-    BioCro::Simulator bs;
 
     void trial_simulation() {
         auto result = bs.run_simulation();
@@ -34,10 +40,7 @@ class MultipleModuleLibrariesTest : public ::testing::Test {
     }
 
  private:
-    BioCro::Simulator get_simulation();
-};
-
-BioCro::Simulator MultipleModuleLibrariesTest::get_simulation() {
+    BioCro::Simulator get_simulator();
 
     BioCro::State initial_state { {"position", 0}, {"velocity", 1}, {"elapsed_time", 0}, {"TTc", 0} };
     BioCro::Parameter_set parameters
@@ -58,6 +61,12 @@ BioCro::Simulator MultipleModuleLibrariesTest::get_simulation() {
         Module_factory_2::retrieve("thermal_time_linear")
     };
 
+    // This must be declared last because its initialization depends
+    // on the parameters for its construction being initialized first:
+    BioCro::Simulator bs;
+};
+
+BioCro::Simulator MultipleModuleLibrariesTest::get_simulator() {
     return BioCro::Simulator {
         initial_state,
         parameters,
@@ -73,7 +82,6 @@ BioCro::Simulator MultipleModuleLibrariesTest::get_simulation() {
 }
 
 TEST_F(MultipleModuleLibrariesTest, CorrectSimulation) {
-
     ASSERT_EXIT(trial_simulation(),
                 ::testing::ExitedWithCode(0),
                 ".*")
