@@ -2,8 +2,18 @@
 //
 // We show that we can use two modules from different module libraries
 // that have the same name as long as they are otherwise compatible.
+// In MultipleModuleLibrariesTest.CompatibleModules, we show this to
+// be the case with two slightly different differential modules, both
+// called "thermal_time_linear".  (As noted below, CompatibleModules
+// is a slight misnomer for this test.  Although the modules used are
+// formally compatible, since they make different assumptions about
+// the units for timestep, their use together is nonsensical.)
+//
 // On the other hand, identical direct modules from different
-// libraries will conflict since their outputs overlap.
+// libraries will conflict since their outputs overlap, as we show in
+// MultipleModuleLibrariesTest.ConflictingModules.  (Note that we
+// could use two identically-named direct modules from different
+// libraries if their output quantity sets were disjoint.)
 
 // Compile with the flag -DVERBOSE=true to get verbose output.
 #ifndef VERBOSE
@@ -28,19 +38,8 @@ class MultipleModuleLibrariesTest : public ::testing::Test {
 
     void trial_simulation() {
         bs = get_simulator();
-        auto result = bs.run_simulation();
+        result = bs.run_simulation();
         if (VERBOSE) print_result(result);
-
-        for (auto i = 0; i < result["time"].size(); ++i) {
-            bool eq {result["time"][i] == i};
-            if (!eq) {
-                cout << "result[\"time\"][" << i << "] (" << result["time"][i]
-                     << ") != i (" << i << ")." << endl;
-                exit(1);
-            }
-        }
-
-        exit(0);
     }
 
     // These are defaults.  Individual tests can alter them.
@@ -52,6 +51,8 @@ class MultipleModuleLibrariesTest : public ::testing::Test {
           {"temp", { 5, 8, 10, 15, 20, 20, 25, 30, 32, 40} } };
     BioCro::Module_set direct_modules {};
     BioCro::Module_set differential_modules {};
+
+    BioCro::Simulation_result result;
 
 private:
     BioCro::Simulator get_simulator();
@@ -76,16 +77,38 @@ BioCro::Simulator MultipleModuleLibrariesTest::get_simulator() {
     };
 }
 
-TEST_F(MultipleModuleLibrariesTest, CorrectSimulation) {
+TEST_F(MultipleModuleLibrariesTest, CompatibleModules) {
     parameters.insert({{"sowing_time", 0}, {"tbase", 10} });
     std::initializer_list<BioCro::Module_creator> additional_modules {
         Module_factory::retrieve("thermal_time_linear"),
         Module_factory_2::retrieve("thermal_time_linear")
     };
-    differential_modules.insert(differential_modules.end(), additional_modules);
-    ASSERT_EXIT(trial_simulation(),
-                ::testing::ExitedWithCode(0),
-                ".*");
+    differential_modules.insert(differential_modules.end(), Module_factory::retrieve("thermal_time_linear"));
+    trial_simulation();
+    auto TTc_values = result["TTc"];
+    auto highest_index = TTc_values.size() - 1;
+    auto final_TTc_value = TTc_values[highest_index];
+    constexpr double expected_value {3 + 5.0/12};
+    ASSERT_DOUBLE_EQ(final_TTc_value, expected_value);
+
+    // The thermal_time_linear module in the testBML module assumes
+    // timestep values in days rather than hours, so the resulting TTc
+    // value (the change per timestep) is 24 times as large.  So when
+    // we add this module into the set of differential modules, since
+    // differential modules are additive, we get a final TTc value 25
+    // times as large as before.
+    //
+    // Note that when we make our own module libraries, we can assume
+    // any units we want for the timestep.  But of course it makes no
+    // realistic sense to mix modules having different assumptions
+    // about the timestep units, and we do so here only for the sake
+    // of demonstration.
+    differential_modules.insert(differential_modules.end(), Module_factory_2::retrieve("thermal_time_linear"));
+    trial_simulation();
+    TTc_values = result["TTc"];
+    final_TTc_value = TTc_values[highest_index];
+    ASSERT_DOUBLE_EQ(final_TTc_value, expected_value * 25);
+        
 }
 
 // Show that direct modules having outputs in common conflict, even if
@@ -93,7 +116,7 @@ TEST_F(MultipleModuleLibrariesTest, CorrectSimulation) {
 TEST_F(MultipleModuleLibrariesTest, ConflictingModules) {
     parameters.insert({{"lat", 44}, {"longitude", -121},
                        {"time_zone_offset", -8}, {"year", 2023} });
-    
+
     direct_modules = {Module_factory::retrieve("solar_position_michalsky"),
                       Module_factory_2::retrieve("solar_position_michalsky")};
 
@@ -123,4 +146,3 @@ TEST_F(MultipleModuleLibrariesTest, ConflictingModules) {
     }, std::logic_error);
 
 }
-
