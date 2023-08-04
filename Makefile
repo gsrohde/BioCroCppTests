@@ -69,9 +69,9 @@ test_multiple_module_libraries: $(EXTERNAL_BIOCRO_LIB)
 # header file dependencies
 test_biocro.o test_dynamical_system.o test_harmonic_oscillator.o \
     test_repeat_runs.o: print_result.h
-test_harmonic_oscillator.o \
-    test_repeat_runs.o test_module_evaluation.o \
-    test_module_factory_functions.o test_module_creator.o: BioCro.h
+test_harmonic_oscillator.o test_repeat_runs.o test_module_evaluation.o \
+    test_module_factory_functions.o test_module_creator.o \
+    test_module_object.o: BioCro.h
 test_dynamical_system.o test_biocro.o test_multiple_module_libraries.o: \
     BioCro_Extended.h
 test_module_evaluation.o test_harmonic_oscillator.o Random.o: Random.h
