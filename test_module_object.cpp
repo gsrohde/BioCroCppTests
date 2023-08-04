@@ -1,9 +1,12 @@
-// Here we show that BioCro modules  may be used directly, but that we
-// have  to  be careful  when  doing  so.   In particular,  the  input
-// quantities object passed to the  module constructor must persist at
-// least  until the  module is  run in  order to  obtain the  expected
-// output.  This  means that we can't  pass the input quantities  as a
-// state_map literal, even though it may seem natural to do so.
+// Here we show that BioCro modules may be created and used directly,
+// as opposed to obtaining a module object using the module_creator
+// class, but that we have to be careful when doing so.  In
+// particular, the input quantities object passed to the module
+// constructor must persist at least until the module is run in order
+// to obtain the expected output.  This means, for example, that we
+// can't pass the input quantities as a state_map literal, even though
+// it may seem natural to do so when we simply want to use a module
+// outside of the context of a simulation.
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h> // for matchers Not and DoubleEq
@@ -49,10 +52,10 @@ TEST_F(ModuleObjectTest, AlteredReferencedObject)
     input_quantities = {};
     ttl.run();
 
-    // We get something near zero for output rather than what one
-    // would expect.
+    // We don't get the expected value because the module references
+    // the external input_quantites object, which has changed by the
+    // time we run the module.
     EXPECT_THAT(output.at("TTc"), Not(DoubleEq(expected_output_value)));
-
 }
 
 TEST_F(ModuleObjectTest, AlterationAfterRunOK)
@@ -83,9 +86,10 @@ TEST_F(ModuleObjectTest, OutputNotDoubled)
     input_quantities = {};
     ttl.run();
 
-    // When we reset the input_quantities, we get something close to
-    // what we get when we only run the module once.
-    EXPECT_DOUBLE_EQ(output.at("TTc"), expected_output_value);
+    // When we reset the input_quantities before running the module a
+    // second time, the result will no longer be double what we got
+    // from running it once.
+    EXPECT_THAT(output.at("TTc"), Not(DoubleEq(2 * expected_output_value)));
 }
 
 TEST_F(ModuleObjectTest, RvalueInputNotOK)
@@ -98,10 +102,22 @@ TEST_F(ModuleObjectTest, RvalueInputNotOK)
                                          &output};
     ttl.run();
 
-    // We get something near zero for output rather than what one
-    // would expect.
-    EXPECT_THAT(output.at("TTc"), Not(DoubleEq(2 * expected_output_value)));
+    // We don't get the expected value because the module references
+    // the ephemeral first argument to the module construtor.
+    EXPECT_THAT(output.at("TTc"), Not(DoubleEq(expected_output_value)));
+}
 
+TEST_F(ModuleObjectTest, ConstantInputOK)
+{
+
+    const state_map const_input_quantities {{"time", input_time},
+                                            {"sowing_time", input_sowing_time},
+                                            {"temp", input_temp},
+                                            {"tbase", input_tbase}};
+    standardBML::thermal_time_linear ttl{const_input_quantities, &output};
+    ttl.run();
+
+    EXPECT_DOUBLE_EQ(output.at("TTc"), expected_output_value);
 }
 
 TEST_F(ModuleObjectTest, LiteralInputNotOK)
@@ -114,9 +130,8 @@ TEST_F(ModuleObjectTest, LiteralInputNotOK)
                                          &output};
     ttl.run();
 
-    // We get something near zero for output rather than what one
-    // would expect.
+    // We don't get the expected value because the module references
+    // the ephemeral first argument to the module construtor.
     EXPECT_THAT(output.at("TTc"), Not(DoubleEq(expected_output_value)));
-
 }
 
