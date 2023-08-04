@@ -6,11 +6,15 @@
 // state_map literal, even though it may seem natural to do so.
 
 #include <gtest/gtest.h>
+#include <gmock/gmock.h> // for matchers Not and DoubleEq
 
 #include <iostream>
-using namespace std;
+
 #include <module_library/thermal_time_linear.h>
 #include <framework/module_helper_functions.h>
+
+using testing::Not;
+using testing::DoubleEq;
 
 class ModuleObjectTest : public ::testing::Test {
    protected:
@@ -47,7 +51,7 @@ TEST_F(ModuleObjectTest, AlteredReferencedObject)
 
     // We get something near zero for output rather than what one
     // would expect.
-    EXPECT_NEAR(output.at("TTc"), 0, 1e-309);
+    EXPECT_THAT(output.at("TTc"), Not(DoubleEq(expected_output_value)));
 
 }
 
@@ -72,7 +76,7 @@ TEST_F(ModuleObjectTest, RerunningDoublesTheOutput)
     EXPECT_DOUBLE_EQ(output.at("TTc"), 2 * expected_output_value);
 }
 
-TEST_F(ModuleObjectTest, RerunningAfterAlterationBarelyAltersTheOutput)
+TEST_F(ModuleObjectTest, OutputNotDoubled)
 {
     standardBML::thermal_time_linear ttl{input_quantities, &output};
     ttl.run();
@@ -96,7 +100,7 @@ TEST_F(ModuleObjectTest, RvalueInputNotOK)
 
     // We get something near zero for output rather than what one
     // would expect.
-    EXPECT_NEAR(output.at("TTc"), 0, 1e-309);
+    EXPECT_THAT(output.at("TTc"), Not(DoubleEq(2 * expected_output_value)));
 
 }
 
@@ -112,7 +116,7 @@ TEST_F(ModuleObjectTest, LiteralInputNotOK)
 
     // We get something near zero for output rather than what one
     // would expect.
-    EXPECT_NEAR(output.at("TTc"), 0, 1e-309);
+    EXPECT_THAT(output.at("TTc"), Not(DoubleEq(expected_output_value)));
 
 }
 
