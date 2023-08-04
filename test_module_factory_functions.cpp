@@ -18,7 +18,7 @@
 // as modules are added and deleted, these numbers will likely have to
 // change.
 constexpr int expected_number_of_modules = 83;
-constexpr int expected_number_of_quantites = 2004;
+constexpr int expected_number_of_quantites = 2180;
 
 using std::cout;
 using std::endl;
