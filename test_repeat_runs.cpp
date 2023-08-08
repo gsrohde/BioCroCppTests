@@ -49,10 +49,23 @@ class BiocroSimulationTest : public ::testing::Test {
         0.0001,
         0.0001,
         200
+        },
+        single_use_sim {
+        initial_state,
+        parameters,
+        drivers,
+        steady_state_modules,
+        derivative_modules,
+        "homemade_euler",
+        1,
+        0.0001,
+        0.0001,
+        200
         } {}
 
     BioCro::Simulator sim;
     BioCro::Idempotent_simulator idem_sim;
+    BioCro::Single_use_simulator single_use_sim;
 };
 
 // "run_simulation()" should be idempotent.  Alternatively, an
@@ -98,4 +111,12 @@ TEST_F(BiocroSimulationTest, runSimulationIsIdempotent) {
                              second_result.at(quantity_name)[i]);
         }
     }
+}
+
+TEST_F(BiocroSimulationTest, cannotRunSingleUseSimulatorTwice) {
+    const auto first_result = single_use_sim.run_simulation();
+
+    EXPECT_THROW({
+            const auto second_result = single_use_sim.run_simulation();
+        }, std::runtime_error);
 }
