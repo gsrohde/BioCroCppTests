@@ -5,6 +5,7 @@
 
 #include <gtest/gtest.h>
 
+#include "safe_simulators.h"
 #include "BioCro.h"
 #include "print_result.h"
 
@@ -25,7 +26,19 @@ class BiocroSimulationTest : public ::testing::Test {
    protected:
     BiocroSimulationTest()
         :
-        bs {
+        sim {
+        initial_state,
+        parameters,
+        drivers,
+        steady_state_modules,
+        derivative_modules,
+        "homemade_euler",
+        1,
+        0.0001,
+        0.0001,
+        200
+        },
+        idem_sim {
         initial_state,
         parameters,
         drivers,
@@ -38,7 +51,8 @@ class BiocroSimulationTest : public ::testing::Test {
         200
         } {}
 
-    BioCro::Simulator bs;
+    BioCro::Simulator sim;
+    BioCro::Idempotent_simulator idem_sim;
 };
 
 // "run_simulation()" should be idempotent.  Alternatively, an
@@ -53,8 +67,25 @@ class BiocroSimulationTest : public ::testing::Test {
 // initial state given to the BioCro::Simulator constructor.
 
 TEST_F(BiocroSimulationTest, DISABLED_runSimulationIsIdempotent) {
-    const auto first_result = bs.run_simulation();
-    const auto second_result = bs.run_simulation();
+    const auto first_result = sim.run_simulation();
+    const auto second_result = sim.run_simulation();
+
+    if (VERBOSE) print_result(first_result);
+    if (VERBOSE) print_result(second_result);
+
+    for (auto item : first_result) {
+        string quantity_name {item.first};
+        size_t duration {item.second.size()};
+        for (size_t i {0}; i < duration; ++i) {
+            ASSERT_DOUBLE_EQ(first_result.at(quantity_name)[i],
+                             second_result.at(quantity_name)[i]);
+        }
+    }
+}
+
+TEST_F(BiocroSimulationTest, runSimulationIsIdempotent) {
+    const auto first_result = idem_sim.run_simulation();
+    const auto second_result = idem_sim.run_simulation();
 
     if (VERBOSE) print_result(first_result);
     if (VERBOSE) print_result(second_result);
