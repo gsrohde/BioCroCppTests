@@ -29,7 +29,7 @@ run_all_tests: test_all
 # Convenient target aliases
 0: run_all_tests
 1: run_test_dynamical_system
-2: run_test_biocro
+2: run_test_simulator
 3: run_test_harmonic_oscillator
 4: run_segfault_test
 5: run_test_repeat_runs
@@ -67,12 +67,12 @@ test_multiple_module_libraries: $(EXTERNAL_BIOCRO_LIB)
 
 
 # header file dependencies
-test_biocro.o test_dynamical_system.o test_harmonic_oscillator.o \
+test_simulator.o test_dynamical_system.o test_harmonic_oscillator.o \
     test_repeat_runs.o: print_result.h
 test_harmonic_oscillator.o test_repeat_runs.o test_module_evaluation.o \
     test_module_factory_functions.o test_module_creator.o \
     test_module_object.o: BioCro.h
-test_dynamical_system.o test_biocro.o test_multiple_module_libraries.o: \
+test_dynamical_system.o test_simulator.o test_multiple_module_libraries.o: \
     BioCro_Extended.h
 test_module_evaluation.o test_harmonic_oscillator.o Random.o: Random.h
 
