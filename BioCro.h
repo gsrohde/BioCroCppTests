@@ -15,7 +15,6 @@ namespace BioCro {
 
     using State = state_map;
     using Parameter_set = state_map;
-    using Variable_set = std::set<std::string>;
     using Variable_settings = state_map;
     using System_drivers = state_vector_map;
     using Simulation_result = state_vector_map;
