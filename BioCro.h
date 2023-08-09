@@ -11,6 +11,9 @@
 // #include <framework/module_creator.h> // for mc_vector
 #include <module_library/module_library.h> // for standardBML::module_library
 
+/**
+ * The public interface for the BioCro C++ library.
+ */
 namespace BioCro {
 
     using State = state_map;
@@ -22,6 +25,12 @@ namespace BioCro {
     using Standard_BioCro_library_module_factory = module_factory<standardBML::module_library>;
     using Module_creator = module_creator*;
 
+    /**
+     * A Simulator is constructed with a constructor having signature
+     *
+     *     Simulator(State initial_state, Parameter_set parameters, System_drivers drivers, Module_set direct_modules, Module_set differential_modules)
+     *
+     */
     using Simulator = biocro_simulation;
 }
 
