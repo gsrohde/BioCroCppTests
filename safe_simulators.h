@@ -5,10 +5,13 @@
 
 namespace BioCro {
 
-class Safe_simulator
+// Here, we define a version of Simulator that automatically resets
+// the dynamical system member object before running.  Note that we
+// don't bother including the generate_report() member function.
+class Idempotent_simulator
 {
    public:
-    Safe_simulator(
+    Idempotent_simulator(
         // parameters passed to dynamical_system constructor
         BioCro::State const& initial_values,
         BioCro::Parameter_set const& parameters,
@@ -37,28 +40,23 @@ class Safe_simulator
                     adaptive_max_steps);
     }
 
-    virtual BioCro::Simulation_result run_simulation() = 0;
-
-   protected:
-    BioCro::Dynamical_system sys;
-    BioCro::Solver system_solver;
-};
-    
-class Idempotent_simulator : public Safe_simulator
-{
-    using Safe_simulator::Safe_simulator; // inherit constructor
-
-   public:
     BioCro::Simulation_result run_simulation()
     {
         sys->reset();
         return system_solver->integrate(sys);
     }
+
+   private:
+    BioCro::Dynamical_system sys;
+    BioCro::Solver system_solver;
 };
 
-class Single_use_simulator : public Safe_simulator
+// Here we can just delegate to Simulator since we don't need to
+// access Simulator's (private) Dynamical_system member.  As a bonus,
+// we automatically inherit the generate_report() member function.
+class Single_use_simulator : public Simulator
 {
-    using Safe_simulator::Safe_simulator; // inherit constructor
+    using Simulator::Simulator; // inherit constructor
 
    public:
     BioCro::Simulation_result run_simulation()
@@ -67,7 +65,7 @@ class Single_use_simulator : public Safe_simulator
             throw std::runtime_error("A Single_use_simulator can only be run once.");
         }
         has_been_run = true;
-        return system_solver->integrate(sys);
+        return Simulator::run_simulation();
     }
 
    private:
