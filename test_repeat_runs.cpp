@@ -50,6 +50,18 @@ class BiocroSimulationTest : public ::testing::Test {
         0.0001,
         200
         },
+        alt_sim {
+        initial_state,
+        parameters,
+        drivers,
+        steady_state_modules,
+        derivative_modules,
+        "homemade_euler",
+        1,
+        0.0001,
+        0.0001,
+        200
+        },
         single_use_sim {
         initial_state,
         parameters,
@@ -65,6 +77,7 @@ class BiocroSimulationTest : public ::testing::Test {
 
     BioCro::Simulator sim;
     BioCro::Idempotent_simulator idem_sim;
+    BioCro::Alternate_idempotent_simulator alt_sim;
     BioCro::Single_use_simulator single_use_sim;
 };
 
@@ -109,6 +122,21 @@ TEST_F(BiocroSimulationTest, runSimulationIsIdempotent) {
         for (size_t i {0}; i < duration; ++i) {
             ASSERT_DOUBLE_EQ(first_result.at(quantity_name)[i],
                              second_result.at(quantity_name)[i]);
+        }
+    }
+
+    const auto first_alt_result = alt_sim.run_simulation();
+    const auto second_alt_result = alt_sim.run_simulation();
+
+    if (VERBOSE) print_result(first_alt_result);
+    if (VERBOSE) print_result(second_alt_result);
+
+    for (auto item : first_alt_result) {
+        string quantity_name {item.first};
+        size_t duration {item.second.size()};
+        for (size_t i {0}; i < duration; ++i) {
+            ASSERT_DOUBLE_EQ(first_alt_result.at(quantity_name)[i],
+                             second_alt_result.at(quantity_name)[i]);
         }
     }
 }
