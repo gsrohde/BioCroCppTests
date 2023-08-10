@@ -12,7 +12,7 @@
 using Module_factory = BioCro::Standard_BioCro_library_module_factory;
 
 class BiocroSimulationTest : public ::testing::Test {
-
+   protected:
     BioCro::State initial_state { {"TTc", 0} };
     BioCro::Parameter_set parameters { {"sowing_time", 0},
                                        {"tbase", 5},
@@ -22,63 +22,6 @@ class BiocroSimulationTest : public ::testing::Test {
     BioCro::Module_set steady_state_modules;
     BioCro::Module_set derivative_modules
         { Module_factory::retrieve("thermal_time_linear") };
-
-   protected:
-    BiocroSimulationTest()
-        :
-        sim {
-        initial_state,
-        parameters,
-        drivers,
-        steady_state_modules,
-        derivative_modules,
-        "homemade_euler",
-        1,
-        0.0001,
-        0.0001,
-        200
-        },
-        idem_sim {
-        initial_state,
-        parameters,
-        drivers,
-        steady_state_modules,
-        derivative_modules,
-        "homemade_euler",
-        1,
-        0.0001,
-        0.0001,
-        200
-        },
-        alt_sim {
-        initial_state,
-        parameters,
-        drivers,
-        steady_state_modules,
-        derivative_modules,
-        "homemade_euler",
-        1,
-        0.0001,
-        0.0001,
-        200
-        },
-        single_use_sim {
-        initial_state,
-        parameters,
-        drivers,
-        steady_state_modules,
-        derivative_modules,
-        "homemade_euler",
-        1,
-        0.0001,
-        0.0001,
-        200
-        } {}
-
-    BioCro::Simulator sim;
-    BioCro::Idempotent_simulator idem_sim;
-    BioCro::Alternate_idempotent_simulator alt_sim;
-    BioCro::Single_use_simulator single_use_sim;
 };
 
 // "run_simulation()" should be idempotent.  Alternatively, an
@@ -93,6 +36,19 @@ class BiocroSimulationTest : public ::testing::Test {
 // initial state given to the BioCro::Simulator constructor.
 
 TEST_F(BiocroSimulationTest, DISABLED_runSimulationIsIdempotent) {
+    BioCro::Simulator sim {
+        initial_state,
+        parameters,
+        drivers,
+        steady_state_modules,
+        derivative_modules,
+        "homemade_euler",
+        1,
+        0.0001,
+        0.0001,
+        200
+    };
+
     const auto first_result = sim.run_simulation();
     const auto second_result = sim.run_simulation();
 
@@ -110,6 +66,19 @@ TEST_F(BiocroSimulationTest, DISABLED_runSimulationIsIdempotent) {
 }
 
 TEST_F(BiocroSimulationTest, runSimulationIsIdempotent) {
+    BioCro::Idempotent_simulator idem_sim {
+        initial_state,
+        parameters,
+        drivers,
+        steady_state_modules,
+        derivative_modules,
+        "homemade_euler",
+        1,
+        0.0001,
+        0.0001,
+        200
+    };
+
     const auto first_result = idem_sim.run_simulation();
     const auto second_result = idem_sim.run_simulation();
 
@@ -124,6 +93,20 @@ TEST_F(BiocroSimulationTest, runSimulationIsIdempotent) {
                              second_result.at(quantity_name)[i]);
         }
     }
+
+
+    BioCro::Alternate_idempotent_simulator alt_sim {
+        initial_state,
+        parameters,
+        drivers,
+        steady_state_modules,
+        derivative_modules,
+        "homemade_euler",
+        1,
+        0.0001,
+        0.0001,
+        200
+    };
 
     const auto first_alt_result = alt_sim.run_simulation();
     const auto second_alt_result = alt_sim.run_simulation();
@@ -142,6 +125,18 @@ TEST_F(BiocroSimulationTest, runSimulationIsIdempotent) {
 }
 
 TEST_F(BiocroSimulationTest, cannotRunSingleUseSimulatorTwice) {
+    BioCro::Single_use_simulator single_use_sim {
+        initial_state,
+        parameters,
+        drivers,
+        steady_state_modules,
+        derivative_modules,
+        "homemade_euler",
+        1,
+        0.0001,
+        0.0001,
+        200
+    };
     const auto first_result = single_use_sim.run_simulation();
 
     EXPECT_THROW({
