@@ -75,7 +75,7 @@ test_harmonic_oscillator.o test_repeat_runs.o test_module_evaluation.o \
 test_dynamical_system.o test_simulator.o test_multiple_module_libraries.o: \
     BioCro_Extended.h
 test_module_evaluation.o test_harmonic_oscillator.o Random.o: Random.h
-
+test_repeat_runs.o: safe_simulators.h
 
 segfault_test : Random.o
 
