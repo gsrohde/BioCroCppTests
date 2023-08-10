@@ -73,6 +73,8 @@ other words, what methods are available when working with such
 objects.  The solution is to document each of these aliases as if they
 were classes defined directly.)
 
+### Going beyond aliasing
+
 Note that names declared in the interface header files are mostly
 aliases.  Thus, the class functions available for classes declared in
 these header files are exactly the same as the class functions of the
@@ -83,15 +85,31 @@ existing class instead of merely aliasing them.  In this way, we could
 restrict, if desired, the functions available, or even rename or alter
 them in some useful way.
 
+One example where we have done this is the `Single_use_simulator`
+class, defined in the file `safe_simulators.h`.  Unlike `Simulator`,
+which is merely an alias for BioCro's `biocro_simulation` class,
+`Single_use_simulator` presents a modified version of that class in
+which `run_simulation` is only allowed to be run once.  (This prevents
+possibly erroneous usages of the simulator class.)
 
+A different approach is used by the `Alternative_idempotent_simulator`
+class, also defined in `safe_simulators.h`.  Whereas
+`Single_use_simulator` inherits from `Simulator`
+(a.k.a. `biocro_simulation`) and merely redefines its `run_simulation`
+member function to be "safe", `Alternative_idempotent_simulator` uses,
+but does not inherit from, the `Simulator` class.  Instead, it creates
+a `Simulator` object on the fly whenever its `run_simulation` function
+is called, and it delegates to _that_ object's `run_simulations`
+function.  This avoids the problem of possibly running
+`run_simulation` when the simulator is in a _dirty_ state.
 
+A third approach is taken by `Idempotent_simulator`.  This class
+merely copies most of the code in the original `Simulator`
+(`biocro_simulation`) class definition but includes a call to the
+underlying dynamical system's reset function at the top of the
+`run_simulation` function, ensuring the system is in a clean state
+before a simulation is run.
 
-
-
-
-
+---
 
 The focus of these tests is more to demonstrate the proposed interface and not so much thoroughness.
-
-
-I
