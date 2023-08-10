@@ -38,14 +38,20 @@
 // digits.  But occassionally, it may fail many more times (12,889 in
 // one count!) or not at all.
 //
+// Note that because by working with a module class directly we are
+// working with BioCro at relatively low level, we include BioCro
+// header files directly (in this case, thermal_time_linear.h, which
+// itself includes state_map.h) rather than using the interface
+// provided by BioCro.h.  (Compare with test_module_evaluation.cpp.)
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h> // for matchers Not and DoubleEq
 
 #include <iostream>
 
-#include <module_library/thermal_time_linear.h>
-#include <framework/module_helper_functions.h>
+// The commented-out include is included in thermal_time_linear.h.
+#include <module_library/thermal_time_linear.h> // for standardBML::thermal_time_linear
+// #include <framework/state_map.h> // for state_map
 
 using testing::Not;
 using testing::DoubleEq;
