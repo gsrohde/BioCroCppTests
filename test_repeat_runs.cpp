@@ -59,7 +59,7 @@ TEST_F(BiocroSimulationTest, DISABLED_runSimulationIsIdempotent) {
         string quantity_name {item.first};
         size_t duration {item.second.size()};
         for (size_t i {0}; i < duration; ++i) {
-            ASSERT_DOUBLE_EQ(first_result.at(quantity_name)[i],
+            EXPECT_DOUBLE_EQ(first_result.at(quantity_name)[i],
                              second_result.at(quantity_name)[i]);
         }
     }
@@ -89,7 +89,7 @@ TEST_F(BiocroSimulationTest, runSimulationIsIdempotent) {
         string quantity_name {item.first};
         size_t duration {item.second.size()};
         for (size_t i {0}; i < duration; ++i) {
-            ASSERT_DOUBLE_EQ(first_result.at(quantity_name)[i],
+            EXPECT_DOUBLE_EQ(first_result.at(quantity_name)[i],
                              second_result.at(quantity_name)[i]);
         }
     }
@@ -118,7 +118,7 @@ TEST_F(BiocroSimulationTest, runSimulationIsIdempotent) {
         string quantity_name {item.first};
         size_t duration {item.second.size()};
         for (size_t i {0}; i < duration; ++i) {
-            ASSERT_DOUBLE_EQ(first_alt_result.at(quantity_name)[i],
+            EXPECT_DOUBLE_EQ(first_alt_result.at(quantity_name)[i],
                              second_alt_result.at(quantity_name)[i]);
         }
     }
