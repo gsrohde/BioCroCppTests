@@ -36,9 +36,7 @@ TEST_F(ModuleEvaluationTest, DifferentialModule) {
 
     BioCro::Module_creator w = Module_factory::retrieve("harmonic_oscillator");
                             
-    // input_quantities should be a state map
-    // use it to initialize the quantity list
-    BioCro::Variable_settings quantities {
+    const BioCro::Variable_settings inputs {
         {"position", double_gen()},
         {"velocity", double_gen()},
         // The mass and spring constant must be positive:
@@ -54,20 +52,20 @@ TEST_F(ModuleEvaluationTest, DifferentialModule) {
         outputs[param] = 0.0;
     }
 
-    auto module = w->create_module(quantities, &outputs);
+    auto module = w->create_module(inputs, &outputs);
 
     module->run();
 
     if (VERBOSE) {
-        print_quantities(quantities);
+        print_quantities(inputs);
         print_quantities(outputs);
     }
 
     // dx/dt = v    
-    EXPECT_DOUBLE_EQ(outputs["position"], quantities["velocity"]);
+    EXPECT_DOUBLE_EQ(outputs.at("position"), inputs.at("velocity"));
     // dv/dt = a = -kx/m
-    EXPECT_DOUBLE_EQ(outputs["velocity"],
-                     -quantities["spring_constant"] * quantities["position"] / quantities["mass"]);
+    EXPECT_DOUBLE_EQ(outputs.at("velocity"),
+                     -inputs.at("spring_constant") * inputs.at("position") / inputs.at("mass"));
 }
 
 TEST_F(ModuleEvaluationTest, DirectModule) {
@@ -76,7 +74,7 @@ TEST_F(ModuleEvaluationTest, DirectModule) {
                             
     // Use values for Urbana, Illinois (40.0932N 88.20175W) at 5:48 CDT on July 19, 2023,
     // the time predicted as the sunrise time on timeanddate.com:
-    BioCro::Variable_settings quantities {
+    const BioCro::Variable_settings inputs {
         {"lat", 40.0932},
         {"longitude", -88.20175},
         {"time", 200 + (5.0 + 48.0/60)/24},
@@ -90,12 +88,12 @@ TEST_F(ModuleEvaluationTest, DirectModule) {
         outputs[param] = 0.0;
     }
 
-    auto module = w->create_module(quantities, &outputs);
+    auto module = w->create_module(inputs, &outputs);
 
     module->run();
 
     if (VERBOSE) {
-        print_quantities(quantities);
+        print_quantities(inputs);
         print_quantities(outputs);
     }
 
@@ -130,7 +128,7 @@ TEST_F(ModuleEvaluationTest, DISABLED_IncorrectlyConstructedDifferentialModule) 
     for (string param : w->get_outputs()) {
         outputs[param] = 0.0;
     }
-    BioCro::Variable_settings inputs {
+    const BioCro::Variable_settings inputs {
         {"position", 9},        // x
         {"velocity", -12},      // v
         // The mass and spring constant must be positive:
