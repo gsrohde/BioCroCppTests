@@ -100,7 +100,7 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 # Configuration options related to the input files
 #---------------------------------------------------------------------------
-INPUT                  = BioCro.h   #BioCro_extended.h
+INPUT                  = BioCro.h BioCro_extended.h safe_simulators.h
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          =
 RECURSIVE              = NO
