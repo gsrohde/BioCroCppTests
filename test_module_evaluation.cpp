@@ -109,3 +109,75 @@ TEST_F(ModuleEvaluationTest, DirectModule) {
     // to have to use.
     EXPECT_NEAR(zenith_angle_in_degrees, 90, 0.621);
 }
+
+// This test is disabled because it is designed to fail.  It shows
+// what happens when we create a module using a non-persistent
+// parameter value for the first parameter (i.e., the input_quantities
+// parameter) of create_module.  To run it (and only it) anyway, use
+// the command
+//
+//     ./test_module_evaluation --gtest_also_run_disabled_tests --gtest_filter="*.DISABLED*"
+//
+// See the file test_module_object.cpp for more.
+TEST_F(ModuleEvaluationTest, DISABLED_IncorrectlyConstructedDifferentialModule) {
+
+    BioCro::Module_creator w = Module_factory::retrieve("harmonic_oscillator");
+
+    // Get the module's outputs and add them to the output list with default
+    // values of 0.0. Since derivative modules add their output values to
+    // the values in outputs, the result only makes sense if each
+    // parameter is initialized to 0.
+    for (string param : w->get_outputs()) {
+        outputs[param] = 0.0;
+    }
+    BioCro::Variable_settings inputs {
+        {"position", 9},        // x
+        {"velocity", -12},      // v
+        // The mass and spring constant must be positive:
+        {"mass", 50},           // m
+        {"spring_constant", 30} // k
+    };
+    auto good_module = w->create_module(inputs, &outputs);
+    
+    good_module->run();
+
+    if (VERBOSE) {
+        print_quantities(inputs);
+        print_quantities(outputs);
+    }
+
+    // dx/dt = v    
+    EXPECT_DOUBLE_EQ(outputs["position"], -12);
+    // dv/dt = a = -kx/m
+    EXPECT_DOUBLE_EQ(outputs["velocity"],
+                     -30.0 * 9 / 50);
+
+    // This module is "bad" we cause we create it using a
+    // non-persistent input_quantities parameter value.
+    auto bad_module = w->create_module({
+        {"position", 19},       // x
+        {"velocity", -12},      // v
+        // The mass and spring constant must be positive:
+        {"mass", 50},           // m
+        {"spring_constant", 40} // k
+    }, &outputs);
+
+    // reset outputs to 0
+    for (string param : w->get_outputs()) {
+        outputs[param] = 0.0;
+    }
+
+    bad_module->run();
+
+    if (VERBOSE) {
+        print_quantities(outputs);
+    }
+
+    // dx/dt = v    
+    EXPECT_DOUBLE_EQ(outputs["position"], -112);
+    // dv/dt = a = -kx/m
+    EXPECT_DOUBLE_EQ(outputs["velocity"],
+                     -30.0 * 9 / 50);
+
+    
+}
