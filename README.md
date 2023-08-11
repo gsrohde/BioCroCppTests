@@ -73,6 +73,23 @@ other words, what methods are available when working with such
 objects.  The solution is to document each of these aliases as if they
 were classes defined directly.)
 
+### Preventing direct use of exposed BioCro classes
+
+To encourage using only the names provided by the interface files, I
+use a somewhat kludgy hack involving the use of an anonymous
+namespace: Following the _using_ statements in `BioCro.h`, I redefine
+the exposed names brought in by the include statements at the top of
+`BioCro.h`.  This causes no conflict with the names as originally
+defined unless the subsequent code actually _uses_ one of these names.
+For example, if we try to use `state_map` in a source file that
+includes `BioCro.h`, we will get a compilation error, something like
+**"error: reference to 'state_map' is ambiguous"**.  (Arguably, the
+anonymous namespace should redefine _all_ names brought in by the
+includes at the top of `BioCro.h`, thus preventing any direct use of
+the functions and classes so exposed.  But I didn't try to make an
+exhaustive list and instead concentrated on those names most likely to
+be used "by mistake.")
+
 ### Going beyond aliasing
 
 Note that names declared in the interface header files are mostly
