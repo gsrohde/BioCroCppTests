@@ -39,7 +39,7 @@ vector<double> sequence(size_t length) {
 }
 
 void print_state(BioCro::State state) {
-    for (auto& item : state) {
+    for (BioCro::Variable_setting& item : state) {
         cout << item.first << ": " << item.second << endl;
     }
 }

@@ -24,12 +24,21 @@ namespace BioCro {
      * for example
      *
      *     State initial_state { {"position", 0}, {"velocity", 1} };
+     *
+     * Values of individual State variables may be accessed with
+     * either the `[]` operator (if not constant) or the `at` member
+     * function.  The `[]` operator may be used to set the value of a
+     * variable.
      */
     using State = state_map;
     /**
      * Parameter represents a set of named values, as required in
      * defining a Simulator object.  Like State, it may be initialized
      * with an initializer list of string-double pairs.
+     *
+     * Values of individual parameters may be accessed with either the
+     * `[]` operator (if not constant) or the `at` member function.
+     * The `[]` operator may be used to set the value of a parameter.
      */
     using Parameter_set = state_map;
     /**
@@ -37,7 +46,7 @@ namespace BioCro {
      * named values and is used for the input and output when running
      * a module.  Such an object is passed as the _input_quantities_
      * (first) parameter value of the `create_module` function of a
-     * Module_creator object, and a reference to such an object is
+     * Module_creator object, and a pointer to such an object is
      * passed as the _output_quantities_ (second) parameter value.
      *
      * Like State and Parameter_set objects, a Variable_settings
@@ -72,10 +81,22 @@ namespace BioCro {
      *     outputs.at(variable_name)
      */
     using Variable_settings = state_map;
+    using Variable_setting = Variable_settings::value_type;
     /**
      * System_drivers is used to define the drivers for a simulation
-     * (the third argument of the Simulator constructor).
-
+     * (the third argument of the Simulator constructor).  A
+     * Variable_settings object may be initialized with an initializer
+     * list consisteing of string-vector<double> pairs, and the
+     * vectors themselves may be initialized with initializer lists.
+     * For example, in fixture class `MultipleModuleLibrariesTest` in
+     * file `test_multiple_module_libraries.cpp`, we initialize a
+     * System_drivers variable using
+     *
+     *     BioCro::System_drivers drivers
+     *         { {"time", { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }},
+     *           {"temp", { 5, 8, 10, 15, 20, 20, 25, 30, 32, 40}} };
+     *
+     */
     using System_drivers = state_vector_map;
     using Simulation_result = state_vector_map;
     using Module_set = mc_vector;
