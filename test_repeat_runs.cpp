@@ -49,8 +49,8 @@ TEST_F(BiocroSimulationTest, DISABLED_runSimulationIsIdempotent) {
         200
     };
 
-    const auto first_result = sim.run_simulation();
-    const auto second_result = sim.run_simulation();
+    const BioCro::Simulation_result first_result = sim.run_simulation();
+    const BioCro::Simulation_result second_result = sim.run_simulation();
 
     if (VERBOSE) print_result(first_result);
     if (VERBOSE) print_result(second_result);
@@ -79,8 +79,8 @@ TEST_F(BiocroSimulationTest, runSimulationIsIdempotent) {
         200
     };
 
-    const auto first_result = idem_sim.run_simulation();
-    const auto second_result = idem_sim.run_simulation();
+    const BioCro::Simulation_result first_result = idem_sim.run_simulation();
+    const BioCro::Simulation_result second_result = idem_sim.run_simulation();
 
     if (VERBOSE) print_result(first_result);
     if (VERBOSE) print_result(second_result);
@@ -108,8 +108,8 @@ TEST_F(BiocroSimulationTest, runSimulationIsIdempotent) {
         200
     };
 
-    const auto first_alt_result = alt_sim.run_simulation();
-    const auto second_alt_result = alt_sim.run_simulation();
+    const BioCro::Simulation_result first_alt_result = alt_sim.run_simulation();
+    const BioCro::Simulation_result second_alt_result = alt_sim.run_simulation();
 
     if (VERBOSE) print_result(first_alt_result);
     if (VERBOSE) print_result(second_alt_result);
@@ -137,9 +137,9 @@ TEST_F(BiocroSimulationTest, cannotRunSingleUseSimulatorTwice) {
         0.0001,
         200
     };
-    const auto first_result = single_use_sim.run_simulation();
+    const BioCro::Simulation_result first_result = single_use_sim.run_simulation();
 
     EXPECT_THROW({
-            const auto second_result = single_use_sim.run_simulation();
+            single_use_sim.run_simulation();
         }, std::runtime_error);
 }

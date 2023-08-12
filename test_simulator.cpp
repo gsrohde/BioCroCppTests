@@ -55,7 +55,7 @@ class BioCroSimulationTest : public ::testing::Test {
     BioCro::Simulator bs;
 
     void trial_simulation() {
-        auto result = bs.run_simulation();
+        BioCro::Simulation_result result = bs.run_simulation();
         if (VERBOSE) print_result(result);
 
         // If we get here, constructing the simulator and running the

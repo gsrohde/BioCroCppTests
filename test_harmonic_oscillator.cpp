@@ -237,7 +237,7 @@ TEST_F(HarmonicOscillator_Test, PeriodIsCorrect) {
     if (VERBOSE) cout << "size of timestep: " << timestep() << endl;
     if (VERBOSE) cout << "duration: " << duration() << endl;
 
-    auto result {get_simulation_result()};
+    BioCro::Simulation_result result {get_simulation_result()};
     if (VERBOSE) print_result(result);
 
     // position should return to zero every half period.
@@ -284,7 +284,7 @@ TEST_F(HarmonicOscillator_Test, PeriodIsCorrect) {
     }
 
     // total energy should be constant
-    auto E = result["total_energy"];
+    vector<double> E = result["total_energy"];
     double init_E {E[0]};
 
     for (size_t i = 0; i <= duration(); ++i) {

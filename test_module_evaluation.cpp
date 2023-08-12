@@ -25,7 +25,7 @@ class ModuleEvaluationTest : public ::testing::Test {
     BioCro::Variable_settings outputs;
 
     void print_quantities(BioCro::Variable_settings quantities) {
-        for (auto& item : quantities) {
+        for (BioCro::Variable_setting& item : quantities) {
             cout << item.first << ": " << item.second << endl;
         }
     }
@@ -52,7 +52,7 @@ TEST_F(ModuleEvaluationTest, DifferentialModule) {
         outputs[param] = 0.0;
     }
 
-    auto module = w->create_module(inputs, &outputs);
+    BioCro::Module module = w->create_module(inputs, &outputs);
 
     module->run();
 
@@ -88,7 +88,7 @@ TEST_F(ModuleEvaluationTest, DirectModule) {
         outputs[param] = 0.0;
     }
 
-    auto module = w->create_module(inputs, &outputs);
+    BioCro::Module module = w->create_module(inputs, &outputs);
 
     module->run();
 
@@ -135,7 +135,7 @@ TEST_F(ModuleEvaluationTest, DISABLED_IncorrectlyConstructedDifferentialModule) 
         {"mass", 50},           // m
         {"spring_constant", 30} // k
     };
-    auto good_module = w->create_module(inputs, &outputs);
+    BioCro::Module good_module = w->create_module(inputs, &outputs);
     
     good_module->run();
 
@@ -152,7 +152,7 @@ TEST_F(ModuleEvaluationTest, DISABLED_IncorrectlyConstructedDifferentialModule) 
 
     // This module is "bad" we cause we create it using a
     // non-persistent input_quantities parameter value.
-    auto bad_module = w->create_module({
+    BioCro::Module bad_module = w->create_module({
         {"position", 19},       // x
         {"velocity", -12},      // v
         // The mass and spring constant must be positive:

@@ -85,9 +85,9 @@ TEST_F(MultipleModuleLibrariesTest, CompatibleModules) {
     };
     differential_modules.insert(differential_modules.end(), Module_factory::retrieve("thermal_time_linear"));
     trial_simulation();
-    auto TTc_values = result["TTc"];
-    auto highest_index = TTc_values.size() - 1;
-    auto final_TTc_value = TTc_values[highest_index];
+    vector<double> TTc_values = result["TTc"];
+    size_t highest_index = TTc_values.size() - 1;
+    double final_TTc_value = TTc_values[highest_index];
     constexpr double expected_value {3 + 5.0/12};
     ASSERT_DOUBLE_EQ(final_TTc_value, expected_value);
 

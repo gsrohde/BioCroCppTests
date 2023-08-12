@@ -28,16 +28,16 @@ run_all_tests: test_all
 
 # Convenient target aliases
 0: run_all_tests
-1: run_test_dynamical_system
-2: run_test_simulator
+1: run_segfault_test
+2: run_test_dynamical_system
 3: run_test_harmonic_oscillator
-4: run_segfault_test
-5: run_test_repeat_runs
-6: run_test_module_evaluation
-7: run_test_module_factory_functions
-8: run_test_module_creator
-9: run_test_multiple_module_libraries
-10: run_test_module_object
+4: run_test_module_creator
+5: run_test_module_evaluation
+6: run_test_module_factory_functions
+7: run_test_module_object
+8: run_test_multiple_module_libraries
+9: run_test_repeat_runs
+10: run_test_simulator
 
 $(RUN_TARGETS) : run_% : %
 	./$<

@@ -27,20 +27,20 @@ TEST(ModuleCreatorTest, KnownModule) {
     // used in retrieving it:
     ASSERT_EQ(creator->get_name(), known_module_name);
 
-    auto inputs = creator->get_inputs();
-    auto outputs = creator->get_outputs();
+    BioCro::Variable_names inputs = creator->get_inputs();
+    BioCro::Variable_names outputs = creator->get_outputs();
 
     // Check that there are 4 inputs and that they have the expected
     // names.
     EXPECT_EQ(inputs.size(), 4);
-    for (auto& item : inputs) {
+    for (std::string& item : inputs) {
         EXPECT_THAT(item, MatchesRegex(known_module_inputs));
     }
 
     // Check that there are 2 outputs and that they have the the
     // expected names.
     EXPECT_EQ(outputs.size(), 2);
-    for (auto& item : outputs) {
+    for (std::string& item : outputs) {
         EXPECT_THAT(item, MatchesRegex(known_module_outputs));
     }
 }

@@ -82,6 +82,7 @@ namespace BioCro {
      */
     using Variable_settings = state_map;
     using Variable_setting = Variable_settings::value_type;
+    using Variable_names = string_vector;
     /**
      * System_drivers is used to define the drivers for a simulation
      * (the third argument of the Simulator constructor).  A
@@ -100,6 +101,8 @@ namespace BioCro {
     using System_drivers = state_vector_map;
     using Simulation_result = state_vector_map;
     using Module_set = mc_vector;
+    using Module = std::unique_ptr<module>;
+    using Module_names = string_vector;
     using Standard_BioCro_library_module_factory = module_factory<standardBML::module_library>;
     using Module_creator = module_creator*;
 

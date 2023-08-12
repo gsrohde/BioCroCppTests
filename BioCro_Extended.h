@@ -111,6 +111,11 @@ namespace BioCro {
         return get_state_from_result(result, get_result_duration(result) - 1);
     }
 
+    /**
+     * Unlike Variable_settings, which encompasses a set of variables
+     * together with their values, Variable_set is simply a set of
+     * variable names.
+     */
     using Variable_set = std::set<std::string>;
 
     // Get the keys of a mapping (e.g., a State or a System_drivers

@@ -51,10 +51,10 @@ void print_state(BioCro::State state) {
 // list from consideration.
 void expect_states_to_match(BioCro::State state1, BioCro::State state2,
                             BioCro::Variable_set exclude = {}) {
-    for (auto& item : state1) {
-        auto key = item.first;
-        auto key_is_in_state2 = (state2.find(key) != state2.end());
-        auto key_is_in_exclusion_list = (exclude.find(key) != exclude.end());
+    for (BioCro::Variable_setting& item : state1) {
+        string key = item.first;
+        bool key_is_in_state2 = (state2.find(key) != state2.end());
+        bool key_is_in_exclusion_list = (exclude.find(key) != exclude.end());
         if (key_is_in_state2  && !key_is_in_exclusion_list) {
             EXPECT_EQ(state1[key], state2[key]);
         }
@@ -128,9 +128,9 @@ TEST_F(DynamicalSystemTest, IntegrationReportIsCorrect) {
     EXPECT_EQ(system_solver->generate_integrate_report(),
               "The ode_solver has not been called yet");
 
-    auto result = system_solver->integrate(ds);
+    BioCro::Simulation_result result = system_solver->integrate(ds);
 
-    auto integration_report = system_solver->generate_integrate_report();
+    string integration_report = system_solver->generate_integrate_report();
     EXPECT_THAT(integration_report,
                 Not(HasSubstr("The ode_solver has not been called yet")));
     EXPECT_THAT(integration_report,
@@ -146,7 +146,7 @@ TEST_F(DynamicalSystemTest, IntegrationReportIsCorrect) {
 // done matches the last row of the result (for the differential
 // variables).
 TEST_F(DynamicalSystemTest, CurrentStateAfterRunMatchesEndOfResult) {
-    auto result = system_solver->integrate(ds);
+    BioCro::Simulation_result result = system_solver->integrate(ds);
 
     BioCro::State state = BioCro::get_current_state(ds);
 
@@ -163,8 +163,8 @@ TEST_F(DynamicalSystemTest, CurrentStateAfterRunMatchesEndOfResult) {
 // On the other hand, the drivers present in the two results should be
 // identical.
 TEST_F(DynamicalSystemTest, StartWhereWeLeftOff) {
-    auto result1 = system_solver->integrate(ds);
-    auto result2 = system_solver->integrate(ds);
+    BioCro::Simulation_result result1 = system_solver->integrate(ds);
+    BioCro::Simulation_result result2 = system_solver->integrate(ds);
 
     // Exclude the driver variables:
     BioCro::Variable_set driver_names = BioCro::keys(drivers);
