@@ -11,18 +11,23 @@ II](https://academic.oup.com/insilicoplants/article/4/1/diac003/6527687)
 paper even states "The central framework can conveniently be accessed
 through the R package interface or directly through C/C++, and other
 interfaces can be developed without duplicating the essential code."
-So I have been thinking about what the public interface to the C++
-library should look like.  Concomitantly, I have been experimenting
-with testing BioCro at the C++ level using the _GoogleTest_ testing
-framework.
+It is conveniently ambiguous here whether "conveniently" applies both
+to "[access] through the R package interface" and "directly through
+C/C++" or only to the former.  From the discussion that follows, it
+seems clear that this purported convenience is currently limited to R
+users.  So I have been thinking about what the public interface to the
+C++ library should look like.  Concomitantly, I have been
+experimenting with testing BioCro at the C++ level using the
+_GoogleTest_ testing framework.
 
 ### Public interface versus publicly-available classes and functions
 
-The number of public functions and methods in the BioCro C++ library
-is vast, but the number of R functions that interact with this library
-is relatively small—only about ten.  Clearly, a public interface to
-the BioCro C++ library need only make available a tiny fraction of the
-classes and functions that could be called by a user of the library.
+The number of public classes and member functions in the BioCro C++
+library is vast, but the number of R functions that interact with this
+library is relatively small—only about ten.  Clearly, a public
+interface to the BioCro C++ library need only make available a tiny
+fraction of the classes and functions that could be called by a user
+of the library.
 
 ### An experimental Public Interface/Test Suite repository
 
@@ -30,9 +35,9 @@ To test out the design of a public interface, I've created a public
 repository `gsrohde/BioCroCppTests` on GitHub.  This consists of a few
 public-interface header files, several tests, a _Make_ file for
 building the tests, a _Doxyfile_ for configuring builds of the Doxygen
-documentation, and a submodule `testBML`, used in testing the use of
+documentation, and a submodule, `testBML`, used in testing the use of
 user-created module libraries.  Also included is a README file that
-tells how to use the repository's collection of files with BioCro, and
+tells how to use the repository's collection of files with BioCro; and
 finally, `README.md`, the file that you are reading.
 
 ## Notes on the interface files
@@ -43,17 +48,23 @@ There are two main interface header files, `BioCro.h` and
 `BioCro.h` is intended to provide only the highest-level classes and
 data structures needed to use BioCro.so in writing C++ programs.  To
 wit, it provides the class most central to BioCro’s functioning,
-called here `Simulator`, and it provides the data types needed in
-constructing a simulator:
+called here `BioCro::Simulator`, and it provides the data types needed in
+constructing an object of this class:
 
 * `State` (for specifying the initial state)
 * `Parameter_set`
 * `System_drivers`
 * `Module_set` (for both the direct and the differential module collections)
-* `Standard_BioCro_library_module_factory`
+* `Standard_BioCro_library_module_factory` (for constructing a `Module_set`)
 
-It also provides a declares a name `Simulation_result` for the type
-returned by `Simulator.run_simulation`.
+It also declares a name `Simulation_result` for the type returned by
+`Simulator.run_simulation`.
+
+Note that all of these names belong to a namespace called `BioCro`,
+but we won't always include the `BioCro::` prefix in the discussion
+that follows.  Putting the names in a namespace, in addition to
+circumventing potential (if unlikely) name clashes, helps to emphasize
+where these names come from.
 
 I have chosen these names to further distance conceptual types
 embodied by these classes from their implementation.  For example,
@@ -67,16 +78,23 @@ As another example, I use the name `Module_set` to emphasize that the
 order of the elements used in initializing objects of this class is
 immaterial.  (It is also meant to suggest that any given module
 appears at most once in a `Module_set`; but this isn’t enforced in the
-case of sets of differential modules.)
+case of sets of differential modules: `Module_set` is in fact
+implemented as a `std::vector`, which has order and doesn't enforce
+uniqueness.)  Here, I am thinking of "set" as a mathematical concept.
+I am not thinking of the associative container `set` available from
+the standard C++ library.  (The two are, of course, related, and
+probably more so than `std::vector` is related to the vectors used in
+mathematics.)
 
-A drawback using these concept-oriented names is that they give the
-user little clue as to how objects of such classes may be used—in
-other words, what methods are available when working with such
-objects: Most users know roughly what methods are available when
-confronted with an object of type `vector<string>`, for example.  But
-present them with an object with a type called `Module_names` (which,
-as it happens, is aliased to `vector<string>`) and they won't have a
-clue of how to work with such an object unless you spell it out.
+One drawback of using these concept-oriented names is that they give
+the user little clue as to how objects of such classes may be used—in
+other words, what member functions are available when working with
+such objects: Most users know roughly what member functions are
+available when confronted with an object of type `vector<string>`, for
+example.  But present them with an object with a type called
+`Module_names` (which, as it happens, is aliased to `vector<string>`)
+and they won't have a clue as to how to work with such an object
+unless you spell it out.
 
 The solution is to document each of these aliases as if they
 were classes defined directly.  I have sketched out a few
@@ -84,6 +102,23 @@ Doxygen-style comments to hint at what such documentation might look
 like.  But since this is only a rough draft of an interface, I have
 stopped short of anything approaching comprehensive user-oriented
 documentation.
+
+`BioCro_Extended.h` provides slightly lower-level classes
+(vis. `Dynamical_system` and `Solver`), as well as some convenience
+functions for obtaining objects of such classes.  (It also provides
+some utility functions mainly useful in writing the tests.)  Note that
+`Dynamical_system` is aliased to `std::shared_ptr<dynamical_system>`
+rather than simply to `dynamical_system`, thus shielding the user from
+some of the messier details of working with the `BioCro.so` library.
+But of course, to make this name from the interface usable, we need to
+provide complete usage information: for example, we should tell the
+user that `Dynamical_system` objects have a member function called
+`get_differential_quantity_names()`, we should describe what that
+function does, and we should make clear that it must be called on a
+`Dynamical_system` object `ds` with  
+`ds->get_differential_quantity_names()` rather than with
+`ds.get_differential_quantity_names()`.
+
 
 ### Preventing direct use of exposed BioCro classes
 
@@ -138,26 +173,41 @@ merely copies most of the code in the original `Simulator`
 (`biocro_simulation`) class definition but includes a call to the
 underlying dynamical system's reset function at the top of the
 `run_simulation` function, ensuring the system is in a clean state
-before a simulation is run.
+before a simulation is run.  (This is perhaps what `biocro_simulation`
+itself should do.)
 
 ## The tests
 
 The focus of the _GoogleTest_ tests is primarily to demonstrate the
 use of the proposed interface, both how it should be used and how it
-can be misused.  In particular, they demonstrate some of the pitfalls
-that await the unwary, pitfalls that R users are largely insulated
-from, and possible methods of ameliorating such pitfalls.
+can be misused.  In particular, these tests demonstrate some of the
+pitfalls that await the unwary—pitfalls that R users are largely
+insulated from—and possible methods of ameliorating such pitfalls.
 
 It also demonstrates features of _GoogleTest_ itself and various ways
 in which it might be used.
 
-Here are a few notes on the individual test files.
+Note that if _Make_ is run with the variable setting `VERBOSE=true`,
+many of the tests will display additional output.  For example, if we
+build `test_repeat_runs` with
+
+    make test_repeat_runs VERBOSE=true
+
+and then run it with
+
+    ./test_repeat_runs --gtest_also_run_disabled_tests --gtest_filter=BiocroSimulationTest.DISABLED_runSimulationIsIdempotent
+
+we can see how the `Simulator` object resets the `time` variable back
+to 0 upon starting the second run, but the `TTc` variable keeps the
+value it ended up with from the first run.
+
+Here are a few notes on the individual test files:
 
 * `segfault_test.cpp` (build and run with `make 1`)
 
    These tests merely demonstrate how _GoogleTest_ can run code that
    causes a segmentation fault without itself crashing, and how it can
-   detects segmentation faults.
+   detect segmentation faults.
 
 * `run_test_simulator.cpp` (build and run with `make 10`)
 
@@ -171,18 +221,19 @@ Here are a few notes on the individual test files.
    Many users will be content to use only `BioCro::Simulator` objects.
    `BioCro::Dynamical_system` objects might be considered somewhat
    lower level and thus this name is declared in `BioCro_Extended.h`
-   rather than `BioCro.h`.  One possible use of
-   `BioCro::Dynamical_system` objects is to be able to easily solver
+   rather than in `BioCro.h`.  One possible use of
+   `BioCro::Dynamical_system` objects is to be able to easily solve
    one system using a variety of solvers without having to define a
    new Simulation object each time.
 
 * `test_harmonic_oscillator.cpp` (build and run with `make 3`)
 
-   This file tests a Simulator based upon a well-known and studied
-   dynamical system, one having an explicit mathematical solution.
-   The tests show that the simulation results match the expected
-   behavior, given an assortment of randomly-assigned values for the
-   input parameters and initial state.
+   This file tests a Simulator based upon a well-known and
+   well-studied type of dynamical system, one having an explicit
+   mathematical solution.  The tests show that the simulation results
+   match the expected behavior, given an assortment of
+   randomly-assigned values for the input parameters and initial
+   state.
 
    The tests in this file probably come closest to being true
    regression tests.
@@ -191,8 +242,8 @@ Here are a few notes on the individual test files.
 
    These tests test the retrieval of `BioCro::Module_creator` objects
    using `BioCro::Standard_BioCro_library_module_factory`'s `retrieve`
-   function and the user of a creator's various functions, once such
-   an object has been retrieved.
+   function and the use of a creator's various functions, once such an
+   object has been retrieved.
 
 * `test_module_evaluation.cpp` (build and run with `make 5`)
 
