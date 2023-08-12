@@ -1,6 +1,6 @@
-\[Draft repository for defining and testing a C++ BioCro interface\]
-
-_For instructions on using these materials, see [README](README)._
+_For instructions on using these materials, see [README](README)
+(online at [README on
+GitHub](https://raw.githubusercontent.com/gsrohde/BioCroCppTests/documentation/README))._
 
 # Towards a C++ Interface for BioCro
 
@@ -142,6 +142,89 @@ before a simulation is run.
 
 ## The tests
 
-The focus of these tests is primarily to demonstrate the use of the
-proposed interface, both how it should be used and how it can be
-misused.
+The focus of the _GoogleTest_ tests is primarily to demonstrate the
+use of the proposed interface, both how it should be used and how it
+can be misused.  In particular, they demonstrate some of the pitfalls
+that await the unwary, pitfalls that R users are largely insulated
+from, and possible methods of ameliorating such pitfalls.
+
+It also demonstrates features of _GoogleTest_ itself and various ways
+in which it might be used.
+
+Here are a few notes on the individual test files.
+
+* `segfault_test.cpp` (build and run with `make 1`)
+
+   These tests merely demonstrate how _GoogleTest_ can run code that
+   causes a segmentation fault without itself crashing, and how it can
+   detects segmentation faults.
+
+* `run_test_simulator.cpp` (build and run with `make 10`)
+
+   This file merely demonstrates basic usage of the `Simulator` class.
+
+* `test_dynamical_system.cpp` (build and run with `make 2`)
+
+   These tests test the various class functions available from a
+   `BioCro::Dynamical_system` object.
+
+   Many users will be content to use only `BioCro::Simulator` objects.
+   `BioCro::Dynamical_system` objects might be considered somewhat
+   lower level and thus this name is declared in `BioCro_Extended.h`
+   rather than `BioCro.h`.  One possible use of
+   `BioCro::Dynamical_system` objects is to be able to easily solver
+   one system using a variety of solvers without having to define a
+   new Simulation object each time.
+
+* `test_harmonic_oscillator.cpp` (build and run with `make 3`)
+
+   This file tests a Simulator based upon a well-known and studied
+   dynamical system, one having an explicit mathematical solution.
+   The tests show that the simulation results match the expected
+   behavior, given an assortment of randomly-assigned values for the
+   input parameters and initial state.
+
+   The tests in this file probably come closest to being true
+   regression tests.
+
+* `test_module_creator.cpp` (build and run with `make 4`)
+
+   These tests test the retrieval of `BioCro::Module_creator` objects
+   using `BioCro::Standard_BioCro_library_module_factory`'s `retrieve`
+   function and the user of a creator's various functions, once such
+   an object has been retrieved.
+
+* `test_module_evaluation.cpp` (build and run with `make 5`)
+
+   The tests in the file demonstrate how to use a BioCro module
+   directly, outside the context of a simulator or a dynamical system,
+   using classes provided by the interface defined in `BioCro.h`.  It
+   also demonstrates a pitfall arising from careless usage of the
+   interface.
+
+* `test_module_factory_functions.cpp` (build and run with `make 6`)
+
+   This file tests the public member functions of module factory
+   objects except for the most important one (`retrieve`), which is
+   tested elsewhere.
+
+* `test_module_object.cpp` (build and run with `make 7`)
+
+   Here we demonstrate accessing classes from `BioCro.so` directly,
+   not through the `BioCro.h` interface, to construct and run a BioCro
+   module directly.  (Compare with `test_module_evaluation`.)  Again,
+   it shows the problems that arise when a module is not constructed
+   correctly.
+
+* `test_multiple_module_libraries.cpp` (build and run with `make 8`)
+
+   Here, using the standard BioCro module library together with a
+   user-defined module library is demonstrated.
+
+* `test_repeat_runs.cpp` (build and run with `make 9`)
+
+   The tests in this file demonstrate a quirk in the Simulator object
+   whereby when it is run a second time, the drivers are set back to
+   their initial values but the differential quantities are not.  It
+   tests out various alternerative versions of a simulator that
+   protect against this problem.
