@@ -50,6 +50,6 @@ TEST(ModuleCreatorTest, BogusModule) {
     // Test that we get an exception when we try to retrieve a module
     // that doesn't exist.
     ASSERT_THROW({
-            auto creator = Module_factory::retrieve(bogus_module_name);
+            Module_factory::retrieve(bogus_module_name);
         }, std::out_of_range);
 }
