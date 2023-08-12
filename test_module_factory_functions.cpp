@@ -27,7 +27,7 @@ using testing::MatchesRegex;
 
 template<class T>
 void print_list(T list) {
-    for (auto item : list) {
+    for (auto& item : list) {
         cout << item << endl;
     }
 }

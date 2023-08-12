@@ -39,7 +39,7 @@ vector<double> sequence(size_t length) {
 }
 
 void print_state(BioCro::State state) {
-    for (auto item : state) {
+    for (auto& item : state) {
         cout << item.first << ": " << item.second << endl;
     }
 }
@@ -51,7 +51,7 @@ void print_state(BioCro::State state) {
 // list from consideration.
 void expect_states_to_match(BioCro::State state1, BioCro::State state2,
                             BioCro::Variable_set exclude = {}) {
-    for (auto item : state1) {
+    for (auto& item : state1) {
         auto key = item.first;
         auto key_is_in_state2 = (state2.find(key) != state2.end());
         auto key_is_in_exclusion_list = (exclude.find(key) != exclude.end());
@@ -173,7 +173,7 @@ TEST_F(DynamicalSystemTest, StartWhereWeLeftOff) {
                            BioCro::get_initial_result_state(result2),
                            driver_names);
 
-    for (auto i = 0; i < BioCro::get_result_duration(result1); ++i) {
+    for (size_t i = 0; i < BioCro::get_result_duration(result1); ++i) {
         BioCro::State i_th_row_of_result1 {BioCro::get_state_from_result(result1, i)};
         BioCro::State i_th_row_of_result2 {BioCro::get_state_from_result(result2, i)};
 

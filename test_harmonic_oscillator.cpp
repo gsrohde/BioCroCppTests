@@ -95,7 +95,7 @@ class HarmonicOscillator_Test : public ::testing::Test {
 
     void set_number_of_timesteps(int n) {
         vector<double> times;
-        for (double i{0}; i <= n; ++i) {
+        for (size_t i{0}; i <= n; ++i) {
             double time{i * timestep()};
             times.push_back(time);
         }
@@ -270,7 +270,7 @@ TEST_F(HarmonicOscillator_Test, PeriodIsCorrect) {
     if (4 * duration() >= 3 * period()) {
         double maximum {0};
         double minimum {0};
-        for (int i = 0;
+        for (size_t i = 0;
              i <= number_of_timesteps(); // Again,
                                          // number_of_timesteps() is
                                          // the maximum allowable
@@ -287,7 +287,7 @@ TEST_F(HarmonicOscillator_Test, PeriodIsCorrect) {
     auto E = result["total_energy"];
     double init_E {E[0]};
 
-    for (int i = 0; i <= duration(); ++i) {
+    for (size_t i = 0; i <= duration(); ++i) {
         EXPECT_NEAR(E[i], init_E, init_E * 9e-4);
     }
 

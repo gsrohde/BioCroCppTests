@@ -25,7 +25,7 @@ class ModuleEvaluationTest : public ::testing::Test {
     BioCro::Variable_settings outputs;
 
     void print_quantities(BioCro::Variable_settings quantities) {
-        for (auto item : quantities) {
+        for (auto& item : quantities) {
             cout << item.first << ": " << item.second << endl;
         }
     }
@@ -48,7 +48,7 @@ TEST_F(ModuleEvaluationTest, DifferentialModule) {
     // values of 0.0. Since derivative modules add their output values to
     // the values in outputs, the result only makes sense if each
     // parameter is initialized to 0.
-    for (string param : w->get_outputs()) {
+    for (string& param : w->get_outputs()) {
         outputs[param] = 0.0;
     }
 
@@ -84,7 +84,7 @@ TEST_F(ModuleEvaluationTest, DirectModule) {
 
     // Get the module's outputs and add them to the output list with default
     // values of 0.0.
-    for (string param : w->get_outputs()) {
+    for (string& param : w->get_outputs()) {
         outputs[param] = 0.0;
     }
 
@@ -125,7 +125,7 @@ TEST_F(ModuleEvaluationTest, DISABLED_IncorrectlyConstructedDifferentialModule) 
     // values of 0.0. Since derivative modules add their output values to
     // the values in outputs, the result only makes sense if each
     // parameter is initialized to 0.
-    for (string param : w->get_outputs()) {
+    for (string& param : w->get_outputs()) {
         outputs[param] = 0.0;
     }
     const BioCro::Variable_settings inputs {
@@ -161,7 +161,7 @@ TEST_F(ModuleEvaluationTest, DISABLED_IncorrectlyConstructedDifferentialModule) 
     }, &outputs);
 
     // reset outputs to 0
-    for (string param : w->get_outputs()) {
+    for (string& param : w->get_outputs()) {
         outputs[param] = 0.0;
     }
 

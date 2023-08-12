@@ -55,7 +55,7 @@ TEST_F(BiocroSimulationTest, DISABLED_runSimulationIsIdempotent) {
     if (VERBOSE) print_result(first_result);
     if (VERBOSE) print_result(second_result);
 
-    for (auto item : first_result) {
+    for (auto& item : first_result) {
         string quantity_name {item.first};
         size_t duration {item.second.size()};
         for (size_t i {0}; i < duration; ++i) {
@@ -85,7 +85,7 @@ TEST_F(BiocroSimulationTest, runSimulationIsIdempotent) {
     if (VERBOSE) print_result(first_result);
     if (VERBOSE) print_result(second_result);
 
-    for (auto item : first_result) {
+    for (auto& item : first_result) {
         string quantity_name {item.first};
         size_t duration {item.second.size()};
         for (size_t i {0}; i < duration; ++i) {
@@ -114,7 +114,7 @@ TEST_F(BiocroSimulationTest, runSimulationIsIdempotent) {
     if (VERBOSE) print_result(first_alt_result);
     if (VERBOSE) print_result(second_alt_result);
 
-    for (auto item : first_alt_result) {
+    for (auto& item : first_alt_result) {
         string quantity_name {item.first};
         size_t duration {item.second.size()};
         for (size_t i {0}; i < duration; ++i) {
