@@ -165,28 +165,28 @@ class HarmonicOscillator_Test : public ::testing::Test {
     BioCro::Simulator get_simulator() const {
         return BioCro::Simulator {
             {{"position", x0}, {"velocity", v0}},
-                {{"mass", m}, {"spring_constant", k}, {"timestep", delta_t}},
-                drivers,
-                direct_modules,
-                differential_modules,
-                //"boost_rosenbrock", // This gives odd results if
-                                      // number_of_timesteps() = 1,
-                                      // appearing to show no change
-                                      // in state from time 0 to the
-                                      // subsequent time.
-                "boost_rk4",          // This and boost_rkck54 seem to work the best here.
-                //"boost_rkck54",
-                //"auto",             // Chooses Rosenbrock in this case.
+            {{"mass", m}, {"spring_constant", k}, {"timestep", delta_t}},
+            drivers,
+            direct_modules,
+            differential_modules,
+            //"boost_rosenbrock", // This gives odd results if
+                                  // number_of_timesteps() = 1,
+                                  // appearing to show no change
+                                  // in state from time 0 to the
+                                  // subsequent time.
+            "boost_rk4",          // This and boost_rkck54 seem to work the best here.
+            //"boost_rkck54",
+            //"auto",             // Chooses Rosenbrock in this case.
 
-                //"boost_euler",      // The Euler solvers perform
-                                      // extremely poorly, showing the
-                                      // total energy climbing from 5
-                //"homemade_euler",   // to about 1,352,000.
-                1,
-                0.0001,
-                0.0001,
-                200
-                };
+            //"boost_euler",      // The Euler solvers perform
+                                  // extremely poorly, showing the
+                                  // total energy climbing from 5
+            //"homemade_euler",   // to about 1,352,000.
+            1,
+            0.0001,
+            0.0001,
+            200
+        };
     }
 
     const double delta_t {0.01};
