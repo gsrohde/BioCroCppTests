@@ -15,7 +15,7 @@ It is conveniently ambiguous here whether "conveniently" applies both
 to "[access] through the R package interface" and "directly through
 C/C++" or only to the former.  From the discussion that follows, it
 seems clear that this purported convenience is currently limited to R
-users.  So I have been thinking about what the public interface to the
+users.  So I have been thinking about what a public interface to the
 C++ library should look like.  Concomitantly, I have been
 experimenting with testing BioCro at the C++ level using the
 _GoogleTest_ testing framework.
@@ -46,10 +46,10 @@ There are two main interface header files, `BioCro.h` and
 `BioCro-extended.h`.
 
 `BioCro.h` is intended to provide only the highest-level classes and
-data structures needed to use BioCro.so in writing C++ programs.  To
+data structures needed to use `BioCro.so` in writing C++ programs.  To
 wit, it provides the class most central to BioCro’s functioning,
-called here `BioCro::Simulator`, and it provides the data types needed in
-constructing an object of this class:
+called here `BioCro::Simulator`, and it provides the data types needed
+in constructing an object of this class:
 
 * `State` (for specifying the initial state)
 * `Parameter_set`
@@ -72,7 +72,9 @@ both`State` and `Parameter_set` are implemented by the standard
 library type `unordered_map<string, double>` (aliased to `state_map`
 in BioCro).  But I wanted to avoid incorporating hints about their
 implementation ("map") into their names; furthermore, they seemed
-conceptually distinct enough to give them _different_ names.
+conceptually distinct enough to give them _different_ names.  (For
+further discussion along these lines see the [C++ Core
+Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rl-name-type).)
 
 As another example, I use the name `Module_set` to emphasize that the
 order of the elements used in initializing objects of this class is
@@ -195,11 +197,16 @@ build `test_repeat_runs` with
 
 and then run it with
 
-    ./test_repeat_runs --gtest_also_run_disabled_tests --gtest_filter=BiocroSimulationTest.DISABLED_runSimulationIsIdempotent
+    ./test_repeat_runs --gtest_also_run_disabled_tests \
+                       --gtest_filter=BiocroSimulationTest.DISABLED_runSimulationIsIdempotent
 
 we can see how the `Simulator` object resets the `time` variable back
 to 0 upon starting the second run, but the `TTc` variable keeps the
 value it ended up with from the first run.
+
+(Note that if the executable file is up to date, you will have to use
+_Make_'s `-B` flag to force a rebuild when turning verbosity on or
+off.)
 
 Here are a few notes on the individual test files:
 
@@ -224,11 +231,11 @@ Here are a few notes on the individual test files:
    rather than in `BioCro.h`.  One possible use of
    `BioCro::Dynamical_system` objects is to be able to easily solve
    one system using a variety of solvers without having to define a
-   new Simulation object each time.
+   new simulator object each time.
 
 * `test_harmonic_oscillator.cpp` (build and run with `make 3`)
 
-   This file tests a Simulator based upon a well-known and
+   This file tests a `Simulator` object based upon a well-known and
    well-studied type of dynamical system, one having an explicit
    mathematical solution.  The tests show that the simulation results
    match the expected behavior, given an assortment of
@@ -274,8 +281,14 @@ Here are a few notes on the individual test files:
 
 * `test_repeat_runs.cpp` (build and run with `make 9`)
 
-   The tests in this file demonstrate a quirk in the Simulator object
-   whereby when it is run a second time, the drivers are set back to
-   their initial values but the differential quantities are not.  It
-   tests out various alternerative versions of a simulator that
-   protect against this problem.
+   The tests in this file demonstrate a quirk in objects of class
+   `Simulator` whereby when they are run a second time, the drivers
+   are set back to their initial values but the differential
+   quantities are not.  It tests out various alternative versions of a
+   simulator that protect against this problem.
+
+To compile all of the tests into one file and run them, call
+
+    make run_all_tests
+
+(or just `make`, since `run_all_tests` is the default target).
