@@ -9,12 +9,12 @@ To use this test suite in a BioCro source tree:
    a BioCro source tree:
 
    cd <root of a BioCro package source tree>
-   git clone git@github.com:gsrohde/BioCroCppTests.git
+   git clone git@github.com:gsrohde/BioCroInterface.git
 
 3. CD to the repository root and initialize and recursively update its
    submodule:
 
-   cd BioCroCppTests
+   cd BioCroInterface
    git submodule update --init --recursive
 
 4. Compile the testBML module library by installing the R pacakge:

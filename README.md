@@ -1,6 +1,6 @@
 _For instructions on using these materials, see [README](README)
 (online at [README on
-GitHub](https://raw.githubusercontent.com/gsrohde/BioCroCppTests/documentation/README))._
+GitHub](https://raw.githubusercontent.com/gsrohde/BioCroInterface/documentation/README))._
 
 # Towards a C++ Interface for BioCro
 
@@ -32,7 +32,7 @@ of the library.
 ### An experimental Public Interface/Test Suite repository
 
 To test out the design of a public interface, I've created a public
-repository `gsrohde/BioCroCppTests` on GitHub.  This consists of a few
+repository `gsrohde/BioCroInterface` on GitHub.  This consists of a few
 public-interface header files, several tests, a _Make_ file for
 building the tests, a _Doxyfile_ for configuring builds of the Doxygen
 documentation, and a submodule, `testBML`, used in testing the use of
